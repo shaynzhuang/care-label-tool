@@ -1,0 +1,416 @@
+{
+"fabric": [
+[
+"Elastane",
+"Élasthanne",
+"Elastano"
+],
+[
+"SPANDEX",
+"Élasthanne",
+"Elastano"
+],
+[
+"ACRYLIC",
+"Acrylique",
+"Acrílico"
+],
+[
+"MODAL",
+"modal",
+"MODAL"
+],
+[
+"MODACRYLIC",
+"modacrylique",
+"MODACRÍLICO"
+],
+[
+"RAYON",
+"viscose",
+"VISCOSA"
+],
+[
+"VISCOSE",
+"viscose",
+"VISCOSA"
+],
+[
+"POLYIAMIDE",
+"polyamide or nylon",
+"POLIAMIDA/NAILON"
+],
+[
+"NYLON",
+"polyamide or nylon",
+"NAILON"
+],
+[
+"POLYESTER",
+"polyester",
+"poliéster"
+],
+[
+"POLYURETHANE",
+"polyuréthane",
+"POLIURETANO"
+],
+[
+"COTTON",
+"coton",
+"ALGODÓN"
+],
+[
+"CASHMERE",
+"cachemire",
+"CACHEMIRA"
+],
+[
+"DOWN",
+"duvet",
+"PLUMÓN"
+],
+[
+"FEATHER",
+"plumes",
+"PLUMAS"
+],
+[
+"WATERFOWL FEATHERS",
+"plumes d'oiseaux aquatiques",
+"PLUMAS DE AVES ACUÁTICAS"
+],
+[
+"LINEN",
+"lin",
+"LINO"
+],
+[
+"MOHAIR",
+"mohair",
+"MOHAIR"
+],
+[
+"ORGANIC COTTON",
+"coton issu de l'agriculture biologique",
+"ALGODÓN ORGÁNICO"
+],
+[
+"SILK",
+"soie",
+"SEDA"
+],
+[
+"WOOL",
+"laine",
+"LANA"
+],
+[
+"shell",
+"Matière principale",
+"Cuerpo"
+],
+[
+"lining",
+"Doublure",
+"Forro"
+],
+[
+"filling",
+"Garnissage",
+"Relleno"
+],
+[
+"knit rib",
+"Maille",
+"Puntada/tejido"
+],
+[
+"Care on reverse",
+"ENTRETIEN AU DOS",
+"Ver al reverso para el cuidado"
+],
+[
+"SHELL FACE",
+"Devant",
+"Exterior parte delantera"
+],
+[
+"SHELL BACK",
+"Dos",
+"Exterior parte trasera"
+],
+[
+"RIB KNIT",
+"Maille",
+"Puntada/tejido"
+],
+[
+"shell",
+"Matière principale",
+"Cuerpo"
+],
+[
+"linning",
+"Doublure",
+"Forro"
+],
+[
+"filling",
+"Garnissage",
+"Relleno"
+],
+[
+"Care on reverse",
+"ENTRETIEN AU DOS",
+"Ver al reverso para el cuidado"
+],
+[
+"exclusive of decoration",
+"Sauf garnitures",
+"Excepto adornos"
+],
+[
+"KNIT RRIM",
+"GARNITURE EN MAILLE",
+"DECORACIONES DE PUNTO"
+],
+[
+"Faux fur",
+"Fausse fourrure",
+"Pelo sintético"
+],
+[
+"钩针织品英语  Crochet",
+"法语  Articles pour crochet",
+"西语  Artículos de ganchillo"
+],
+[
+"Contrast Fabric",
+"Tissu de contraste",
+"Tejido de contraste"
+],
+[
+"薄纱 Tulle",
+"Tulle",
+"Tul"
+],
+[
+"Hood",
+"Une casquette",
+"Una gorra"
+],
+[
+"蕾丝英语                   Lace",
+"(网状的，花边， 蕾丝）法语                          Dentelle",
+"西班牙语                        Encaje"
+],
+[
+"Body",
+"Corps",
+"Cuerpo"
+],
+[
+"Vest/Bowtie",
+"Gilet/Nœud papillon",
+"Chaleco/Corbata de moño"
+]
+],
+"country": [
+[
+"BAHRAIN",
+"AU BAHREÏN",
+"BAHRÉIN"
+],
+[
+"BANGLADESH",
+"AU BANGLADESH",
+"BANGLADESH"
+],
+[
+"BOLIVIA",
+"EN BOLIVIE",
+"BOLIVIA"
+],
+[
+"BRAZIL",
+"AU BRÉSIL",
+"BRASIL"
+],
+[
+"CAMBODIA",
+"AU CAMBODGE",
+"CAMBOYA"
+],
+[
+"CANADA",
+"AU CANADA",
+"CANADÁ"
+],
+[
+"CHINA",
+"EN CHINE",
+"CHINA"
+],
+[
+"COLOMBIA",
+"EN COLOMBIE",
+"COLOMBIA"
+],
+[
+"DOMINICAN REPUBLIC",
+"EN RÉPUBLIQUE DOMINICAINE",
+"REPÚBLICA DOMINICANA"
+],
+[
+"EGYPT",
+"EN ÉGYPTE",
+"EGIPTO"
+],
+[
+"EL SALVADOR",
+"AU SALVADORE",
+"EL SALVADOR"
+],
+[
+"ENGLAND",
+"EN ANGLETERRE",
+"INGLATERRA"
+],
+[
+"FIJI",
+"AUX FIDJI",
+"FIJI"
+],
+[
+"HONDURAS",
+"AU HONDURAS",
+"HONDURAS"
+],
+[
+"HONG KONG",
+"À HONG-KONG",
+"HONG KONG"
+],
+[
+"INDIA",
+"EN INDE",
+"INDIA"
+],
+[
+"INDONESIA",
+"EN INDONÉSIE",
+"INDONESIA"
+],
+[
+"IRELAND",
+"EN IRLANDE",
+"IRLANDA"
+],
+[
+"ITALY",
+"EN ITALIE",
+"ITALIA"
+],
+[
+"KOREA",
+"EN CORÉE",
+"COREA"
+],
+[
+"MACAU",
+"À MACAO",
+"MACAO"
+],
+[
+"MALAYSIA",
+"EN MALAISIE",
+"MALASIA"
+],
+[
+"MARIANA ISLANDS",
+"AUX ÎLES MARIANNES",
+"ISLAS MARIANAS"
+],
+[
+"MAURITIUS",
+"À L’ILE MAURICE",
+"MAURITANIA"
+],
+[
+"MEXICO",
+"AU MEXIQUE",
+"MÉXICO"
+],
+[
+"NICARAGUA",
+"AU NICARAGUA",
+"NICARAGUA"
+],
+[
+"PAKISTAN",
+"AU PAKISTAN",
+"PAKISTÁN"
+],
+[
+"PERU",
+"AU PÉROU",
+"PERÚ"
+],
+[
+"PHILIPPINES",
+"AUX PHILIPPINES",
+"FILIPINAS"
+],
+[
+"ROMANIA",
+"EN ROUMANIE",
+"RUMANÍA"
+],
+[
+"SCOTLAND",
+"EN ÉCOSSE",
+"ESCOCIA"
+],
+[
+"SINGAPORE",
+"À SINGAPOUR",
+"SINGAPUR"
+],
+[
+"SRI LANKA",
+"AU SRI LANKA",
+"SRI LANKA"
+],
+[
+"THAILAND",
+"EN THAÏLANDE",
+"TAILANDIA"
+],
+[
+"TUNISIA",
+"EN TUNISIE",
+"TÚNEZ"
+],
+[
+"TURKEY",
+"EN TURQUIE",
+"TURQUÍA"
+],
+[
+"USA",
+"AUX ETATS-UNIS",
+"ESTADOS UNIDOS"
+],
+[
+"VIETNAM",
+"AU VIETNAM",
+"VIETNAM"
+],
+[
+"LESOTHO",
+"AU LESOTHO",
+"LESOTO"
+]
+]
+}
