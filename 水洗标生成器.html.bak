@@ -1,0 +1,1147 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23165dff'/%3E%3Cpath d='M18 26 L21 48 L43 48 L46 26 Z' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M21 34 Q25 31 29 34 T37 34 T45 34' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<title>水洗标生成器 Care Label Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1f2329; min-height: 100vh; }
+  .topbar { background: #fff; border-bottom: 1px solid #e5e6eb; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar h1 { font-size: 17px; font-weight: 600; }
+  .topbar .sub { font-size: 12px; color: #86909c; margin-left: 10px; font-weight: 400; }
+  .btn { background: #165dff; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .btn:hover { background: #0e4bdb; }
+  .btn.ghost { background: #fff; color: #165dff; border: 1px solid #165dff; margin-right: 8px; }
+  .main { display: grid; grid-template-columns: 400px 1fr; gap: 20px; padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
+  .panel { background: #fff; border-radius: 8px; padding: 18px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  .group { margin-bottom: 16px; }
+  .group-title { font-size: 12px; font-weight: 600; color: #86909c; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f0f2f5; }
+  label.field { display: block; font-size: 12px; color: #4e5969; margin: 8px 0 3px; }
+  input[type=text], select, textarea { width: 100%; padding: 7px 9px; font-size: 13px; border: 1px solid #e5e6eb; border-radius: 5px; background: #fff; font-family: inherit; }
+  input[type=text]:focus, select:focus, textarea:focus { outline: none; border-color: #165dff; }
+  textarea { resize: vertical; min-height: 50px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4e5969; margin-top: 6px; cursor: pointer; }
+  .check input { cursor: pointer; }
+  .brand-badge { display: inline-block; background: #e8f3ff; color: #165dff; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .preview-area { display: flex; justify-content: center; align-items: flex-start; padding: 10px; }
+  .label-sheet { background: #fff; padding: 30px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,.08); display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+
+  .care-label { background: #fff; border-left: 1px solid #333; border-right: 1px solid #333; border-top: 1px dashed #999; border-bottom: 1px dashed #999; padding: 14px 10px; font-family: Arial, Helvetica, sans-serif; color: #000; text-align: center; font-size: 10.5px; line-height: 1.45; }
+  .care-label .comp { font-weight: bold; font-size: 11px; margin-bottom: 6px; white-space: pre-line; }
+  .care-label .decor { font-size: 10px; margin: 3px 0; }
+  .care-label .origin { margin: 5px 0; }
+  .care-label .rn { font-size: 10px; }
+  .care-label .ys { font-size: 10px; margin-bottom: 6px; }
+  .care-label .care-text { margin: 6px 0; white-space: pre-line; }
+  .care-label .symbols { display: flex; justify-content: center; gap: 3px; margin: 6px 0; }
+  .care-label .symbols svg { width: 20px; height: 20px; }
+  .care-label .style { margin-top: 6px; font-size: 10.5px; }
+  .care-label .qty { color: #e63946; font-size: 13px; font-weight: bold; margin-top: 8px; }
+
+  .tpl-a, .tpl-b, .tpl-c { width: auto; }
+  .tpl-b {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    border: 2px solid #3399cc;
+    padding: 16px 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .tpl-b .comp-b { font-style: italic; font-size: 13px; margin-bottom: 16px; white-space: pre-line; text-align: center; }
+  .tpl-b .decor-b { font-style: italic; font-size: 12.5px; margin-bottom: 16px; text-align: center; line-height: 1.3; }
+  .tpl-b .origin-b { font-style: italic; font-size: 13px; margin-bottom: 14px; text-align: center; }
+  .tpl-b .rule-b { border-top: 2px dashed #3399cc; margin: 0 -12px 14px; }
+  .tpl-b .care-text-b { font-style: italic; font-size: 11.5px; white-space: pre-line; margin-bottom: 14px; line-height: 1.4; text-align: center; }
+  .tpl-b .style-b { font-style: italic; font-size: 12px; margin-bottom: 12px; text-align: center; white-space: nowrap; }
+  .tpl-b .rn-b { font-weight: bold; font-size: 12px; text-align: center; }
+  .tpl-b .ys-b { font-weight: bold; font-size: 12px; text-align: center; margin-top: 2px; }
+  .tpl-b .care-text { font-size: 9.5px; line-height: 1.5; }
+  .tpl-c .brand-logo { font-family: Georgia, "Times New Roman", serif; font-size: 10px; font-weight: bold; letter-spacing: .5px; margin-bottom: 5px; }
+  .tpl-c .lang-block { margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px dashed #e88ba8; }
+  .tpl-c .lang-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .tpl-c .comp { font-size: 9px !important; margin-bottom: 4px; }
+  .tpl-c .care-text { font-size: 8.5px !important; line-height: 1.35; margin: 3px 0; }
+  .tpl-c .symbols svg { width: 13px !important; height: 13px !important; }
+  .tpl-c .comp-fr, .tpl-c .comp-es { font-size: 8px; font-weight: bold; margin-bottom: 3px; white-space: pre-line; text-align: center; }
+  .tpl-c .care-fr, .tpl-c .care-es { font-size: 7px; line-height: 1.35; text-align: center; margin: 3px 0; }
+  .tpl-c .addr { font-size: 6.5px; line-height: 1.3; text-align: center; margin-top: 3px; }
+  .tpl-c .origin, .tpl-c .rn, .tpl-c .ys { font-size: 8px !important; }
+
+  @media print {
+    .topbar, .panel { display: none !important; }
+    .main { display: block; padding: 0; }
+    .preview-area { padding: 0; }
+    .label-sheet { box-shadow: none; padding: 0; gap: 8mm; }
+    .care-label { border: none; }
+    @page { size: A4; margin: 8mm; }
+  }
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .panel { max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div><h1>水洗标生成器 <span class="sub">输入款号自动识别品牌、自动套模板</span></h1></div>
+  <div>
+    <button class="btn ghost" onclick="resetForm()">清空</button>
+    <button class="btn" onclick="window.print()">打印 / 存 PDF</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="group">
+      <div class="group-title">款号（自动识别品牌）</div>
+      <label class="field">STYLE 款号</label>
+      <input type="text" id="styleNo" value="F64SW840B/J">
+      <div id="brandBadge"></div>
+      <label class="field">手动覆盖模板（一般不用改）</label>
+      <select id="templateOverride">
+        <option value="auto">自动识别</option>
+        <option value="a_adv">模板A：ADV/CC（RN#58909，无符号行）</option>
+        <option value="a_sym">模板A-SH：Scene&Heard（RN#58909，有符号行）</option>
+        <option value="b">模板B：EdgeHill（RN58909，无符号）</option>
+        <option value="c">模板C：ANDY &amp; EVAN 三语（RN#136762）</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <div class="group-title">成分与产地</div>
+      <label class="field">成分（英文，多部位分行写）</label>
+      <textarea id="composition">65% ACRYLIC
+35% NYLON</textarea>
+      <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:5px 12px;" onclick="recommendCare()">根据成分推荐洗护</button>
+      <label class="field">产地</label>
+      <input type="text" id="origin" value="MADE IN CHINA">
+      <div class="row2">
+        <div>
+          <label class="field">RN #</label>
+          <input type="text" id="rn" value="58909">
+        </div>
+        <div>
+          <label class="field">追踪码日期（月/年）</label>
+          <input type="text" id="ys" value="04/2026">
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="decor"> 显示 "EXCLUSIVE OF DECORATION"（仅 EdgeHill 需要）</label>
+    </div>
+
+    <div class="group">
+      <div class="group-title">洗护指令</div>
+      <label class="field">洗涤 Washing</label>
+      <select id="wash">
+        <option value="MACHINE WASH COLD SEPARATELY">MACHINE WASH COLD SEPARATELY</option>
+        <option value="MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE">MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE</option>
+        <option value="MACHINE WASH COLD">MACHINE WASH COLD</option>
+        <option value="HAND WASH COLD">HAND WASH COLD</option>
+        <option value="DO NOT WASH">DO NOT WASH</option>
+      </select>
+      <label class="field">漂白 Bleaching</label>
+      <select id="bleach">
+        <option value="DO NOT BLEACH">DO NOT BLEACH</option>
+        <option value="ONLY NON-CHLORINE BLEACH WHEN NEEDED.">ONLY NON-CHLORINE BLEACH WHEN NEEDED.</option>
+        <option value="ANY BLEACHING AGENT ALLOWED">ANY BLEACHING AGENT ALLOWED</option>
+      </select>
+      <label class="field">烘干 Drying</label>
+      <select id="dry">
+        <option value="TUMBLE DRY MEDIUM">TUMBLE DRY MEDIUM</option>
+        <option value="TUMBLE DRYLOW">TUMBLE DRYLOW</option>
+        <option value="TUMBLE DRY LOW">TUMBLE DRY LOW</option>
+        <option value="DO NOT TUMBLE DRY">DO NOT TUMBLE DRY</option>
+        <option value="LINE DRY">LINE DRY</option>
+        <option value="FLAT DRY">FLAT DRY</option>
+      </select>
+      <label class="field">熨烫 Ironing</label>
+      <select id="iron">
+        <option value="COOL IRON FROM INSIDE IF NEEDED.">COOL IRON FROM INSIDE IF NEEDED.</option>
+        <option value="COOLIRON IF NEEDED">COOLIRON IF NEEDED</option>
+        <option value="DO NOT IRON">DO NOT IRON</option>
+      </select>
+      <label class="field">干洗 Professional Care</label>
+      <select id="dryclean">
+        <option value="DO NOT DRY CLEAN">DO NOT DRY CLEAN</option>
+        <option value="DRY CLEAN">DRY CLEAN</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <div class="group-title">打印设置</div>
+      <label class="field">水洗标宽度（mm，实物尺寸）</label>
+      <input type="text" id="labelWidth" value="35">
+      <label class="field">数量（底部红色标注，留空不显示）</label>
+      <input type="text" id="qty" placeholder="如 4250">
+      <label class="field">并排条数</label>
+      <select id="copies">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="6">6</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preview-area">
+    <div class="label-sheet" id="sheet"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===== 查询面板 ===== -->
+<div style="max-width:1500px;margin:0 auto 20px;padding:0 24px;">
+  <div class="panel" style="max-height:none;">
+    <div class="group-title" style="font-size:14px;color:#1f2329;margin-bottom:12px;">洗护规则查询（来自 S27 HOUSE CARE LABEL RULE）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- 成分翻译查询 -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">成分名称翻译 EN → FR / ES</div>
+        <input type="text" id="qFabric" placeholder="输入英文成分，如 cotton, spandex, wool..." style="margin-bottom:8px;">
+        <div id="qFabricResult" style="font-size:13px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">输入后自动显示...</div>
+      </div>
+
+      <!-- 洗护指令查询 -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">洗护指令对照 EN / FR / ES + 符号</div>
+        <select id="qCare" style="margin-bottom:8px;">
+          <option value="">-- 选择洗护指令 --</option>
+        </select>
+        <div id="qCareResult" style="font-size:12px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">选择后显示...</div>
+      </div>
+    </div>
+
+    <!-- ISO符号图鉴 -->
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:8px;">ISO 3758 符号图鉴</div>
+      <div id="qSymbolChart" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 查询数据（来自 Excel）=====
+const FABRIC_LOOKUP = [
+  ['COTTON','coton','ALGODÓN'],['ELASTANE / SPANDEX','élasthanne','ELASTANO'],
+  ['ACRYLIC','acrylique','ACRÍLICO'],['MODAL','modal','MODAL'],
+  ['MODACRYLIC','modacrylique','MODACRÍLICO'],['RAYON / VISCOSE','viscose','VISCOSA'],
+  ['NYLON / POLYAMIDE','polyamide (nylon)','POLIAMIDA / NAILON'],
+  ['POLYESTER','polyester','poliéster'],['POLYURETHANE','polyuréthane','POLIURETANO'],
+  ['CASHMERE','cachemire','CACHEMIRA'],['DOWN','duvet','PLUMÓN'],
+  ['FEATHER','plumes','PLUMAS'],['WATERFOWL FEATHERS','plumes d\'oiseaux aquatiques','PLUMAS DE AVES ACUÁTICAS'],
+  ['LINEN','lin','LINO'],['MOHAIR','mohair','MOHAIR'],
+  ['ORGANIC COTTON','coton bio','ALGODÓN ORGÁNICO'],['SILK','soie','SEDA'],
+  ['WOOL','laine','LANA'],
+];
+
+const CARE_LOOKUP = [
+  ['MACHINE WASH COLD SEPARATELY','Laver à la machine à l\'eau froide séparément','Temperatura máxima de lavado 30°C por separado','wash30'],
+  ['MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE','Lavage en machine max. 30°C, couleurs similaires, cycle très délicat','30°C, colores similares, proceso muy suave','wash30'],
+  ['MILD PROCESS 30°C','Lavage 30°C cycle délicat','30°C proceso suave','wash30'],
+  ['NORMAL PROCESS 30°C','Lavage 30°C cycle normal','30°C proceso normal','wash30'],
+  ['VERY MILD PROCESS 40°C','Lavage 40°C cycle très délicat','40°C proceso muy suave','wash30'],
+  ['MILD PROCESS 40°C','Lavage 40°C cycle délicat','40°C proceso suave','wash30'],
+  ['NORMAL PROCESS 40°C','Lavage 40°C cycle normal','40°C proceso normal','wash30'],
+  ['MILD PROCESS 60°C','Lavage 60°C cycle délicat','60°C proceso suave','wash30'],
+  ['NORMAL PROCESS 60°C','Lavage 60°C cycle normal','60°C proceso normal','wash30'],
+  ['DO NOT WASH','Lavage interdit','No lavar','washX'],
+  ['HAND WASH','Lavage à la main','Lavar a mano','washHand'],
+  ['DO NOT BLEACH','Pas de blanchiment','No usar lejía','bleachX'],
+  ['ONLY NON-CHLORINE BLEACH WHEN NEEDED','Produits de blanchiment oxygénés uniquement','Solo blanqueador sin cloro permitido','bleachOxygen'],
+  ['ANY BLEACHING AGENT ALLOWED','Tout agent de blanchiment','Cualquier blanqueador','bleachAny'],
+  ['TUMBLE DRY LOW (60°C)','Séchage en tambour 60°C','Secadora baja 60°C','dryLow'],
+  ['TUMBLE DRY MEDIUM','Séchage en tambour température modérée','Secadora temperatura media','dryMed'],
+  ['DO NOT TUMBLE DRY','Pas de séchage en tambour','No usar secadora','dryX'],
+  ['COOL IRON (110°C)','Repasser max. 110°C','Planchar max. 110°C','iron1'],
+  ['DO NOT IRON','Ne pas repasser','No planchar','ironX'],
+  ['DO NOT DRY CLEAN','Pas de nettoyage à sec','No limpiar en seco','dcX'],
+  ['DRY CLEAN','Nettoyage à sec','Limpieza en seco','dc'],
+];
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23165dff'/%3E%3Cpath d='M18 26 L21 48 L43 48 L46 26 Z' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M21 34 Q25 31 29 34 T37 34 T45 34' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<title>水洗标生成器 Care Label Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1f2329; min-height: 100vh; }
+  .topbar { background: #fff; border-bottom: 1px solid #e5e6eb; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar h1 { font-size: 17px; font-weight: 600; }
+  .topbar .sub { font-size: 12px; color: #86909c; margin-left: 10px; font-weight: 400; }
+  .btn { background: #165dff; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .btn:hover { background: #0e4bdb; }
+  .btn.ghost { background: #fff; color: #165dff; border: 1px solid #165dff; margin-right: 8px; }
+  .main { display: grid; grid-template-columns: 400px 1fr; gap: 20px; padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
+  .panel { background: #fff; border-radius: 8px; padding: 18px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  .group { margin-bottom: 16px; }
+  .group-title { font-size: 12px; font-weight: 600; color: #86909c; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f0f2f5; }
+  label.field { display: block; font-size: 12px; color: #4e5969; margin: 8px 0 3px; }
+  input[type=text], select, textarea { width: 100%; padding: 7px 9px; font-size: 13px; border: 1px solid #e5e6eb; border-radius: 5px; background: #fff; font-family: inherit; }
+  input[type=text]:focus, select:focus, textarea:focus { outline: none; border-color: #165dff; }
+  textarea { resize: vertical; min-height: 50px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4e5969; margin-top: 6px; cursor: pointer; }
+  .check input { cursor: pointer; }
+  .brand-badge { display: inline-block; background: #e8f3ff; color: #165dff; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .preview-area { display: flex; justify-content: center; align-items: flex-start; padding: 10px; }
+  .label-sheet { background: #fff; padding: 30px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,.08); display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+
+  .care-label { background: #fff; border-left: 1px solid #333; border-right: 1px solid #333; border-top: 1px dashed #999; border-bottom: 1px dashed #999; padding: 14px 10px; font-family: Arial, Helvetica, sans-serif; color: #000; text-align: center; font-size: 10.5px; line-height: 1.45; }
+  .care-label .comp { font-weight: bold; font-size: 11px; margin-bottom: 6px; white-space: pre-line; }
+  .care-label .decor { font-size: 10px; margin: 3px 0; }
+  .care-label .origin { margin: 5px 0; }
+  .care-label .rn { font-size: 10px; }
+  .care-label .ys { font-size: 10px; margin-bottom: 6px; }
+  .care-label .care-text { margin: 6px 0; white-space: pre-line; }
+  .care-label .symbols { display: flex; justify-content: center; gap: 3px; margin: 6px 0; }
+  .care-label .symbols svg { width: 20px; height: 20px; }
+  .care-label .style { margin-top: 6px; font-size: 10.5px; }
+  .care-label .qty { color: #e63946; font-size: 13px; font-weight: bold; margin-top: 8px; }
+
+  .tpl-a, .tpl-b, .tpl-c { width: auto; }
+  .tpl-b {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    border: 2px solid #3399cc;
+    padding: 16px 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .tpl-b .comp-b { font-style: italic; font-size: 13px; margin-bottom: 16px; white-space: pre-line; text-align: center; }
+  .tpl-b .decor-b { font-style: italic; font-size: 12.5px; margin-bottom: 16px; text-align: center; line-height: 1.3; }
+  .tpl-b .origin-b { font-style: italic; font-size: 13px; margin-bottom: 14px; text-align: center; }
+  .tpl-b .rule-b { border-top: 2px dashed #3399cc; margin: 0 -12px 14px; }
+  .tpl-b .care-text-b { font-style: italic; font-size: 11.5px; white-space: pre-line; margin-bottom: 14px; line-height: 1.4; text-align: center; }
+  .tpl-b .style-b { font-style: italic; font-size: 12px; margin-bottom: 12px; text-align: center; white-space: nowrap; }
+  .tpl-b .rn-b { font-weight: bold; font-size: 12px; text-align: center; }
+  .tpl-b .ys-b { font-weight: bold; font-size: 12px; text-align: center; margin-top: 2px; }
+  .tpl-b .care-text { font-size: 9.5px; line-height: 1.5; }
+  .tpl-c .brand-logo { font-family: Georgia, "Times New Roman", serif; font-size: 10px; font-weight: bold; letter-spacing: .5px; margin-bottom: 5px; }
+  .tpl-c .lang-block { margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px dashed #e88ba8; }
+  .tpl-c .lang-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .tpl-c .comp { font-size: 9px !important; margin-bottom: 4px; }
+  .tpl-c .care-text { font-size: 8.5px !important; line-height: 1.35; margin: 3px 0; }
+  .tpl-c .symbols svg { width: 13px !important; height: 13px !important; }
+  .tpl-c .comp-fr, .tpl-c .comp-es { font-size: 8px; font-weight: bold; margin-bottom: 3px; white-space: pre-line; text-align: center; }
+  .tpl-c .care-fr, .tpl-c .care-es { font-size: 7px; line-height: 1.35; text-align: center; margin: 3px 0; }
+  .tpl-c .addr { font-size: 6.5px; line-height: 1.3; text-align: center; margin-top: 3px; }
+  .tpl-c .origin, .tpl-c .rn, .tpl-c .ys { font-size: 8px !important; }
+
+  @media print {
+    .topbar, .panel { display: none !important; }
+    .main { display: block; padding: 0; }
+    .preview-area { padding: 0; }
+    .label-sheet { box-shadow: none; padding: 0; gap: 8mm; }
+    .care-label { border: none; }
+    @page { size: A4; margin: 8mm; }
+  }
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .panel { max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div><h1>水洗标生成器 <span class="sub">输入款号自动识别品牌、自动套模板</span></h1></div>
+  <div>
+    <button class="btn ghost" onclick="resetForm()">清空</button>
+    <button class="btn" onclick="window.print()">打印 / 存 PDF</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="group">
+      <div class="group-title">款号（自动识别品牌）</div>
+      <label class="field">STYLE 款号</label>
+      <input type="text" id="styleNo" value="F64SW840B/J">
+      <div id="brandBadge"></div>
+      <label class="field">手动覆盖模板（一般不用改）</label>
+      <select id="templateOverride">
+        <option value="auto">自动识别</option>
+        <option value="a_adv">模板A：ADV/CC（RN#58909，无符号行）</option>
+        <option value="a_sym">模板A-SH：Scene&Heard（RN#58909，有符号行）</option>
+        <option value="b">模板B：EdgeHill（RN58909，无符号）</option>
+        <option value="c">模板C：ANDY &amp; EVAN 三语（RN#136762）</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <div class="group-title">成分与产地</div>
+      <label class="field">成分（英文，多部位分行写）</label>
+      <textarea id="composition">65% ACRYLIC
+35% NYLON</textarea>
+      <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:5px 12px;" onclick="recommendCare()">根据成分推荐洗护</button>
+      <label class="field">产地</label>
+      <input type="text" id="origin" value="MADE IN CHINA">
+      <div class="row2">
+        <div>
+          <label class="field">RN #</label>
+          <input type="text" id="rn" value="58909">
+        </div>
+        <div>
+          <label class="field">追踪码日期（月/年）</label>
+          <input type="text" id="ys" value="04/2026">
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="decor"> 显示 "EXCLUSIVE OF DECORATION"（仅 EdgeHill 需要）</label>
+    </div>
+
+    <div class="group">
+      <div class="group-title">洗护指令</div>
+      <label class="field">洗涤 Washing</label>
+      <select id="wash">
+        <option value="MACHINE WASH COLD SEPARATELY">MACHINE WASH COLD SEPARATELY</option>
+        <option value="MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE">MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE</option>
+        <option value="MACHINE WASH COLD">MACHINE WASH COLD</option>
+        <option value="HAND WASH COLD">HAND WASH COLD</option>
+        <option value="DO NOT WASH">DO NOT WASH</option>
+      </select>
+      <label class="field">漂白 Bleaching</label>
+      <select id="bleach">
+        <option value="DO NOT BLEACH">DO NOT BLEACH</option>
+        <option value="ONLY NON-CHLORINE BLEACH WHEN NEEDED.">ONLY NON-CHLORINE BLEACH WHEN NEEDED.</option>
+        <option value="ANY BLEACHING AGENT ALLOWED">ANY BLEACHING AGENT ALLOWED</option>
+      </select>
+      <label class="field">烘干 Drying</label>
+      <select id="dry">
+        <option value="TUMBLE DRY MEDIUM">TUMBLE DRY MEDIUM</option>
+        <option value="TUMBLE DRYLOW">TUMBLE DRYLOW</option>
+        <option value="TUMBLE DRY LOW">TUMBLE DRY LOW</option>
+        <option value="DO NOT TUMBLE DRY">DO NOT TUMBLE DRY</option>
+        <option value="LINE DRY">LINE DRY</option>
+        <option value="FLAT DRY">FLAT DRY</option>
+      </select>
+      <label class="field">熨烫 Ironing</label>
+      <select id="iron">
+        <option value="COOL IRON FROM INSIDE IF NEEDED.">COOL IRON FROM INSIDE IF NEEDED.</option>
+        <option value="COOLIRON IF NEEDED">COOLIRON IF NEEDED</option>
+        <option value="DO NOT IRON">DO NOT IRON</option>
+      </select>
+      <label class="field">干洗 Professional Care</label>
+      <select id="dryclean">
+        <option value="DO NOT DRY CLEAN">DO NOT DRY CLEAN</option>
+        <option value="DRY CLEAN">DRY CLEAN</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <div class="group-title">打印设置</div>
+      <label class="field">水洗标宽度（mm，实物尺寸）</label>
+      <input type="text" id="labelWidth" value="35">
+      <label class="field">数量（底部红色标注，留空不显示）</label>
+      <input type="text" id="qty" placeholder="如 4250">
+      <label class="field">并排条数</label>
+      <select id="copies">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4" selected>4</option>
+        <option value="6">6</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preview-area">
+    <div class="label-sheet" id="sheet"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===== 查询面板 ===== -->
+<div style="max-width:1500px;margin:0 auto 20px;padding:0 24px;">
+  <div class="panel" style="max-height:none;">
+    <div class="group-title" style="font-size:14px;color:#1f2329;margin-bottom:12px;">洗护规则查询（来自 S27 HOUSE CARE LABEL RULE）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- 成分翻译查询 -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">成分名称翻译 EN → FR / ES</div>
+        <input type="text" id="qFabric" placeholder="输入英文成分，如 cotton, spandex, wool..." style="margin-bottom:8px;">
+        <div id="qFabricResult" style="font-size:13px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">输入后自动显示...</div>
+      </div>
+
+      <!-- 洗护指令查询 -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">洗护指令对照 EN / FR / ES + 符号</div>
+        <select id="qCare" style="margin-bottom:8px;">
+          <option value="">-- 选择洗护指令 --</option>
+        </select>
+        <div id="qCareResult" style="font-size:12px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">选择后显示...</div>
+      </div>
+    </div>
+
+    <!-- ISO符号图鉴 -->
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:8px;">ISO 3758 符号图鉴</div>
+      <div id="qSymbolChart" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 查询数据（来自 Excel）=====
+const FABRIC_LOOKUP = [
+  ['COTTON','coton','ALGODÓN'],['ELASTANE / SPANDEX','élasthanne','ELASTANO'],
+  ['ACRYLIC','acrylique','ACRÍLICO'],['MODAL','modal','MODAL'],
+  ['MODACRYLIC','modacrylique','MODACRÍLICO'],['RAYON / VISCOSE','viscose','VISCOSA'],
+  ['NYLON / POLYAMIDE','polyamide (nylon)','POLIAMIDA / NAILON'],
+  ['POLYESTER','polyester','poliéster'],['POLYURETHANE','polyuréthane','POLIURETANO'],
+  ['CASHMERE','cachemire','CACHEMIRA'],['DOWN','duvet','PLUMÓN'],
+  ['FEATHER','plumes','PLUMAS'],['WATERFOWL FEATHERS','plumes d\'oiseaux aquatiques','PLUMAS DE AVES ACUÁTICAS'],
+  ['LINEN','lin','LINO'],['MOHAIR','mohair','MOHAIR'],
+  ['ORGANIC COTTON','coton bio','ALGODÓN ORGÁNICO'],['SILK','soie','SEDA'],
+  ['WOOL','laine','LANA'],
+];
+
+const CARE_LOOKUP = [
+  ['MACHINE WASH COLD SEPARATELY','Laver à la machine à l\'eau froide séparément','Temperatura máxima de lavado 30°C por separado','wash30'],
+  ['MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE','Lavage en machine max. 30°C, couleurs similaires, cycle très délicat','30°C, colores similares, proceso muy suave','wash30'],
+  ['MILD PROCESS 30°C','Lavage 30°C cycle délicat','30°C proceso suave','wash30'],
+  ['NORMAL PROCESS 30°C','Lavage 30°C cycle normal','30°C proceso normal','wash30'],
+  ['VERY MILD PROCESS 40°C','Lavage 40°C cycle très délicat','40°C proceso muy suave','wash30'],
+  ['MILD PROCESS 40°C','Lavage 40°C cycle délicat','40°C proceso suave','wash30'],
+  ['NORMAL PROCESS 40°C','Lavage 40°C cycle normal','40°C proceso normal','wash30'],
+  ['MILD PROCESS 60°C','Lavage 60°C cycle délicat','60°C proceso suave','wash30'],
+  ['NORMAL PROCESS 60°C','Lavage 60°C cycle normal','60°C proceso normal','wash30'],
+  ['DO NOT WASH','Lavage interdit','No lavar','washX'],
+  ['HAND WASH','Lavage à la main','Lavar a mano','washHand'],
+  ['DO NOT BLEACH','Pas de blanchiment','No usar lejía','bleachX'],
+  ['ONLY NON-CHLORINE BLEACH WHEN NEEDED','Produits de blanchiment oxygénés uniquement','Solo blanqueador sin cloro permitido','bleachOxygen'],
+  ['ANY BLEACHING AGENT ALLOWED','Tout agent de blanchiment','Cualquier blanqueador','bleachAny'],
+  ['TUMBLE DRY LOW (60°C)','Séchage en tambour 60°C','Secadora baja 60°C','dryLow'],
+  ['TUMBLE DRY MEDIUM','Séchage en tambour température modérée','Secadora temperatura media','dryMed'],
+  ['DO NOT TUMBLE DRY','Pas de séchage en tambour','No usar secadora','dryX'],
+  ['COOL IRON (110°C)','Repasser max. 110°C','Planchar max. 110°C','iron1'],
+  ['DO NOT IRON','Ne pas repasser','No planchar','ironX'],
+  ['DO NOT DRY CLEAN','Pas de nettoyage à sec','No limpiar en seco','dcX'],
+  ['DRY CLEAN','Nettoyage à sec','Limpieza en seco','dc'],
+];
+
+// 成分查询
+$('qFabric').addEventListener('input', function() {
+  const q = this.value.trim().toUpperCase();
+  if (!q) { $('qFabricResult').innerHTML = '输入后自动显示...'; return; }
+  const found = FABRIC_LOOKUP.filter(r => r[0].includes(q) || q.includes(r[0].split('/')[0].trim()));
+  if (!found.length) { $('qFabricResult').innerHTML = '<span style="color:#86909c;">未找到，试试: COTTON, SPANDEX, POLYESTER, NYLON, RAYON, WOOL, SILK, LINEN...</span>'; return; }
+  $('qFabricResult').innerHTML = found.map(r => `<b>${r[0]}</b> → FR: ${r[1]} / ES: ${r[2]}`).join('<br>');
+});
+
+// 洗护指令下拉填充
+CARE_LOOKUP.forEach(r => {
+  const opt = document.createElement('option');
+  opt.value = r[0]; opt.textContent = r[0];
+  $('qCare').appendChild(opt);
+});
+$('qCare').addEventListener('change', function() {
+  const found = CARE_LOOKUP.find(r => r[0] === this.value);
+  if (!found) { $('qCareResult').innerHTML = '选择后显示...'; return; }
+  $('qCareResult').innerHTML = `
+    <div style="margin-bottom:6px;">${SYM[found[3]] || ''}</div>
+    <b>EN:</b> ${found[0]}<br>
+    <b>FR:</b> ${found[1]}<br>
+    <b>ES:</b> ${found[2]}`;
+});
+
+// ISO符号图鉴
+const CHART = [
+  ['wash30','30°C 水洗'],['washHand','手洗'],['washX','不可水洗'],
+  ['bleachX','不可漂白'],['bleachOxygen','仅非氯漂白'],['bleachAny','可漂白'],
+  ['dryLow','低温烘干 60°C'],['dryMed','中温烘干'],['dryX','不可烘干'],
+  ['iron1','低温熨烫 110°C'],['ironX','不可熨烫'],
+  ['dc','可干洗'],['dcX','不可干洗'],
+];
+$('qSymbolChart').innerHTML = CHART.map(([k,label]) =>
+  `<div style="text-align:center;width:70px;"><div style="width:36px;height:36px;margin:0 auto;">${SYM[k]}</div><div style="font-size:10px;color:#4e5969;margin-top:2px;">${label}</div></div>`
+).join('');
+</script>`$
+<script>
+const SYM = {
+  wash30: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><text x="20" y="27" text-anchor="middle" font-size="11" font-family="Arial" stroke="none" fill="#000">30</text></svg>`,
+  washHand: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><path d="M10 34 L30 34" stroke-width="1.5"/></svg>`,
+  washX: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>`,
+  bleachX: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>`,
+  bleachOxygen: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/><line x1="12" y1="20" x2="26" y2="30" stroke-width="1.5"/><line x1="16" y1="16" x2="30" y2="26" stroke-width="1.5"/></svg>`,
+  bleachAny: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/></svg>`,
+  dryLow: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><circle cx="20" cy="20" r="2" fill="#000" stroke="none"/></svg>`,
+  dryMed: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><circle cx="17" cy="20" r="1.8" fill="#000" stroke="none"/><circle cx="23" cy="20" r="1.8" fill="#000" stroke="none"/></svg>`,
+  dryX: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>`,
+  iron1: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><circle cx="20" cy="24" r="2" fill="#000" stroke="none"/></svg>`,
+  ironX: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>`,
+  dc: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><circle cx="20" cy="20" r="13"/></svg>`,
+  dcX: `<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><circle cx="20" cy="20" r="13"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>`,
+};
+
+const FABRIC_DICT = [
+  [/cotton/gi, 'coton', 'algodón'],
+  [/spandex|elastane/gi, 'élasthanne', 'elastano'],
+  [/polyester/gi, 'polyester', 'poliéster'],
+  [/nylon|polyamide/gi, 'polyamide', 'nailon'],
+  [/rayon|viscose/gi, 'viscose', 'viscosa'],
+  [/cashmere/gi, 'cachemire', 'cachemira'],
+  [/wool/gi, 'laine', 'lana'],
+  [/acrylic/gi, 'acrylique', 'acrílico'],
+  [/linen/gi, 'lin', 'lino'],
+  [/modal/gi, 'modal', 'modal'],
+  [/down/gi, 'duvet', 'plumón'],
+  [/feather/gi, 'plumes', 'plumas'],
+  [/silk/gi, 'soie', 'seda'],
+];
+function translateFabric(text, lang) {
+  let out = text;
+  FABRIC_DICT.forEach(([re, fr, es]) => {
+    out = out.replace(re, m => lang === 'fr' ? fr : es);
+  });
+  return out;
+}
+
+function $(id) { return document.getElementById(id); }
+
+function detectTemplate(styleNo) {
+  const s = styleNo.toUpperCase();
+  if (s.startsWith('F64EH') || s.startsWith('S74EH')) return 'b';           // EdgeHill
+  if (s.startsWith('F26')) return 'c';             // ANDY & EVAN
+  if (s.startsWith('F64AW') || s.startsWith('F64SL') || s.startsWith('S74AW')) return 'a_adv';  // ADV + CC（无符号行）
+  if (s.startsWith('F64SW') || s.startsWith('F54SH') || s.startsWith('S64SM')) return 'a_sym'; // SH（有符号行）
+  return 'a_adv';
+}
+
+// 款号 → 品牌追踪码前缀 S27xx
+function getBrandCode() {
+  const s = $('styleNo').value.toUpperCase();
+  if (s.startsWith('F64SL')) return 'S27CC';   // CLASS CLUB
+  if (s.startsWith('F64SW') || s.startsWith('S64SM')) return 'S27SH';   // SCENE & HEARD
+  if (s.startsWith('F64AW') || s.startsWith('S74AW')) return 'S27AD';   // ADVENTUREWEAR
+  if (s.startsWith('F64EH') || s.startsWith('S74EH')) return 'S27EC';  // EDGEHILL
+  if (s.startsWith('F26')) return 'S27AE';   // ANDY & EVAN
+  return 'S27XX';
+}
+
+// 拼追踪码行：S27xx/YS/月/年
+function trackingLine() {
+  return getBrandCode() + '/YS/' + $('ys').value;
+}
+
+function getTemplate() {
+  const ov = $('templateOverride').value;
+  if (ov !== 'auto') return ov;
+  return detectTemplate($('styleNo').value);
+}
+
+function updateBadge() {
+  const tpl = getTemplate();
+  const map = {
+    a_adv: '模板A · ADV/CC（RN#58909，无符号行）',
+    a_sym: '模板A · SH（RN#58909，有符号行）',
+    b: '模板B · EdgeHill（RN58909，无符号）',
+    c: '模板C · ANDY & EVAN 三语',
+  };
+  $('brandBadge').innerHTML = '<span class="brand-badge">' + map[tpl] + '</span>';
+}
+
+function buildSymbols() {
+  let s = '';
+  const w = $('wash').value;
+  if (w.indexOf('DO NOT WASH') === 0) s += SYM.washX;
+  else if (w.indexOf('HAND WASH') === 0) s += SYM.washHand;
+  else s += SYM.wash30;
+  const b = $('bleach').value;
+  if (b === 'DO NOT BLEACH') s += SYM.bleachX;
+  else if (b.indexOf('NON-CHLORINE') >= 0) s += SYM.bleachOxygen;
+  else s += SYM.bleachAny;
+  const d = $('dry').value;
+  if (d.indexOf('DO NOT') === 0) s += SYM.dryX;
+  else if (d.indexOf('MEDIUM') >= 0) s += SYM.dryMed;
+  else s += SYM.dryLow;
+  s += $('iron').value.indexOf('DO NOT') === 0 ? SYM.ironX : SYM.iron1;
+  s += $('dryclean').value === 'DO NOT DRY CLEAN' ? SYM.dcX : SYM.dc;
+  return s;
+}
+
+function buildCareLines() {
+  return [$('wash').value, $('bleach').value, $('dry').value, $('iron').value, $('dryclean').value].join('\n');
+}
+
+function qtyHtml() {
+  return $('qty').value ? '<div class="qty">数量：' + $('qty').value + '</div>' : '';
+}
+
+// 模板A-ADV：AdventureWear（无符号行）
+function renderAAdv() {
+  const comp = $('composition').value.trim();
+  return `<div class="care-label tpl-a">
+    <div style="height:18px;"></div>
+    <div style="border-top:1px dashed #999;margin:0 -10px 18px;"></div>
+    <div class="comp">${comp}</div>
+    <div style="height:28px;"></div>
+    <div class="origin">${$('origin').value}</div>
+    <div class="rn">RN#${$('rn').value}</div>
+    <div class="ys">${trackingLine()}</div>
+    <div style="border-top:1px dashed #999;margin:10px -10px;"></div>
+    <div class="care-text">${buildCareLines()}</div>
+    <div style="height:28px;"></div>
+    <div class="style">STYLE ${$('styleNo').value}</div>
+    <div style="border-top:1px dashed #999;margin:10px -10px 8px;"></div>
+    ${qtyHtml()}
+  </div>`;
+}
+
+// 模板A-CC/SH：ClassClub / Scene&Heard（有符号行）
+function renderASym() {
+  const comp = $('composition').value.trim();
+  return `<div class="care-label tpl-a">
+    <div style="height:18px;"></div>
+    <div style="border-top:1px dashed #999;margin:0 -10px 18px;"></div>
+    <div class="comp">${comp}</div>
+    <div style="height:28px;"></div>
+    <div class="origin">${$('origin').value}</div>
+    <div class="rn">RN#${$('rn').value}</div>
+    <div class="ys">${trackingLine()}</div>
+    <div style="border-top:1px dashed #999;margin:10px -10px;"></div>
+    <div class="care-text">${buildCareLines()}</div>
+    <div class="symbols">${buildSymbols()}</div>
+    <div style="height:28px;"></div>
+    <div class="style">STYLE ${$('styleNo').value}</div>
+    <div style="border-top:1px dashed #999;margin:10px -10px 8px;"></div>
+    ${qtyHtml()}
+  </div>`;
+}
+
+// 模板B：EdgeHill（衬线斜体、蓝色边框、首字母大写）
+function renderB() {
+  // 成分转首字母大写（EdgeHill实物格式：30% Wool 不是 30% WOOL）
+  const compRaw = $('composition').value.trim();
+  const comp = compRaw.split('\n').map(line => {
+    return line.replace(/(%\s*)([a-z]+)/gi, (m, pct, word) => pct + word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  }).join('\n');
+  return `<div class="care-label tpl-b">
+    <div class="rule-b" style="margin:0 -12px 16px;"></div>
+    <div class="comp-b">${comp}</div>
+    <div class="decor-b">Exclusive<br>of Decoration</div>
+    <div class="origin-b">Made in China</div>
+    <div class="rule-b"></div>
+    <div class="care-text-b">${buildCareLines()}</div>
+    <div class="style-b">Style # ${$('styleNo').value}</div>
+    <div class="rn-b">RN${$('rn').value}</div>
+    <div class="ys-b">${trackingLine()}</div>
+    <div class="rule-b" style="margin-top:14px;"></div>
+  </div>`;
+}
+
+// 模板C：ANDY & EVAN 三语
+function titleCase(str) {
+  return str.toLowerCase().replace(/(^|[\s\/])([a-z])/g, (m, p, c) => p + c.toUpperCase());
+}
+function renderC() {
+  const compEnRaw = $('composition').value.trim();
+  const compEn = compEnRaw.split('\n').map(l => titleCase(l)).join('\n');
+  const compFr = translateFabric(compEn, 'fr');
+  const compEs = translateFabric(compEn, 'es');
+  const careEn = buildCareLines().split('\n').map(l => titleCase(l)).join('\n');
+  const careFr = `Lavage en machine max. 30°C. Laver avec des couleurs similaires. Cycle très délicat.\nPas de blanchiment.\nSéchage en tambour autorisé, température modérée 60°C.\nRepasser au froid de l'intérieur si nécessaire.\nPas d'entretien professionnel à sec.`;
+  const careEs = `Temperatura máxima de lavado 30°C. Lavar con colores similares. Proceso muy suave.\nNo usar lejía.\nPosible uso de secadora a temperatura baja, máxima temperatura de escape 60°C.\nHierro frío desde el interior si es necesario.\nNo limpiar en seco.`;
+  return `<div class="care-label tpl-c">
+    <div class="lang-block">
+      <div class="brand-logo">ANDY &amp; EVAN&reg;</div>
+      <div class="comp">${compEn}</div>
+      <div class="care-text">${careEn}</div>
+      <div class="symbols">${buildSymbols()}</div>
+      <div class="origin">Made In China</div>
+      <div class="rn">RN#136762</div>
+      <div class="ys">${trackingLine()}</div>
+    </div>
+    <div class="lang-block">
+      <div class="comp-fr">${compFr}</div>
+      <div class="care-fr">${careFr}</div>
+      <div class="origin">Fabriqué en Chine</div>
+      <div class="addr">WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div>
+    </div>
+    <div class="lang-block">
+      <div class="comp-es">${compEs}</div>
+      <div class="care-es">${careEs}</div>
+      <div class="origin">Hecho en China</div>
+      <div class="addr">IMPORTADO POR:<br>IMPORTADORA PRIMEX S.A. DE C.V.<br>BLVD. MAGNOCENTRO NO. 4<br>SAN FERNANDO LA HERRADURA<br>HUIXQUILUCAN, ESTADO DE MEXICO<br>C.P. 52765<br>RFC: IPR-903907-S70</div>
+    </div>
+  </div>`;
+}
+
+// 根据成分推荐洗护指令（行业默认值，可再手动改）
+function recommendCare() {
+  const c = $('composition').value.toUpperCase();
+  let wash, bleach, dry, iron, dc;
+
+  if (c.indexOf('WOOL') >= 0 || c.indexOf('CASHMERE') >= 0) {
+    // 羊毛/羊绒：手洗、平铺晾干、可干洗
+    wash = 'HAND WASH COLD';
+    bleach = 'DO NOT BLEACH';
+    dry = 'FLAT DRY';
+    iron = 'DO NOT IRON';
+    dc = 'DRY CLEAN';
+  } else if (c.indexOf('SILK') >= 0) {
+    // 真丝：手洗、阴干、可干洗
+    wash = 'HAND WASH COLD';
+    bleach = 'DO NOT BLEACH';
+    dry = 'LINE DRY';
+    iron = 'COOL IRON IF NEEDED.';
+    dc = 'DRY CLEAN';
+  } else if (c.indexOf('SPANDEX') >= 0 || c.indexOf('ELASTANE') >= 0) {
+    // 含氨纶：冷水轻柔、非氯漂、低温烘干
+    wash = 'MACHINE WASH COLD WITH LIKE COLORS. GENTLE CYCLE.';
+    bleach = 'ONLY NON-CHLORINE BLEACH WHEN NEEDED.';
+    dry = 'TUMBLE DRY LOW';
+    iron = 'COOL IRON FROM INSIDE IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  } else if (c.indexOf('LINEN') >= 0) {
+    // 亚麻：冷水、阴干
+    wash = 'MACHINE WASH COLD';
+    bleach = 'DO NOT BLEACH';
+    dry = 'LINE DRY';
+    iron = 'COOL IRON FROM INSIDE IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  } else if (c.indexOf('NYLON') >= 0) {
+    // 尼龙：冷水轻柔
+    wash = 'MACHINE WASH COLD WITH LIKE COLORS. GENTLE CYCLE.';
+    bleach = 'DO NOT BLEACH';
+    dry = 'TUMBLE DRY LOW';
+    iron = 'COOL IRON IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  } else if (c.indexOf('ACRYLIC') >= 0) {
+    // 腈纶：冷水轻柔
+    wash = 'MACHINE WASH COLD WITH LIKE COLORS. GENTLE CYCLE.';
+    bleach = 'DO NOT BLEACH';
+    dry = 'TUMBLE DRY LOW';
+    iron = 'COOL IRON IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  } else if (c.indexOf('POLYESTER') >= 0 && c.indexOf('COTTON') < 0) {
+    // 纯聚酯
+    wash = 'MACHINE WASH COLD';
+    bleach = 'DO NOT BLEACH';
+    dry = 'TUMBLE DRY LOW';
+    iron = 'COOL IRON IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  } else {
+    // 默认/棉：冷水分开洗、中温烘干
+    wash = 'MACHINE WASH COLD SEPARATELY';
+    bleach = 'DO NOT BLEACH';
+    dry = 'TUMBLE DRY MEDIUM';
+    iron = 'COOL IRON FROM INSIDE IF NEEDED.';
+    dc = 'DO NOT DRY CLEAN';
+  }
+
+  $('wash').value = wash;
+  $('bleach').value = bleach;
+  $('dry').value = dry;
+  $('iron').value = iron;
+  $('dryclean').value = dc;
+  render();
+}
+
+function render() {
+  updateBadge();
+  const tpl = getTemplate();
+  let html;
+  if (tpl === 'a_adv') html = renderAAdv();
+  else if (tpl === 'a_sym') html = renderASym();
+  else if (tpl === 'b') html = renderB();
+  else html = renderC();
+  $('sheet').innerHTML = html.repeat(parseInt($('copies').value, 10));
+  // 按实物宽度（mm）调整标宽和字号
+  const wmm = parseFloat($('labelWidth').value) || 50;
+  const scale = Math.max(0.7, Math.min(1.4, wmm / 50));
+  document.querySelectorAll('.care-label').forEach(el => {
+    el.style.width = wmm + 'mm';
+    el.style.fontSize = (10.5 * scale) + 'px';
+    el.style.paddingLeft = (wmm * 0.08) + 'mm';
+    el.style.paddingRight = (wmm * 0.08) + 'mm';
+  });
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type=text]').forEach(el => el.value = '');
+  document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
+  render();
+}
+
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+render();
+
+// 成分查询
+
+];
+  ['DRY CLEAN','Nettoyage à sec','Limpieza en seco','dc'],
+  ['DO NOT DRY CLEAN','Pas de nettoyage à sec','No limpiar en seco','dcX'],
+  ['DO NOT IRON','Ne pas repasser','No planchar','ironX'],
+  ['COOL IRON (110°C)','Repasser max. 110°C','Planchar max. 110°C','iron1'],
+  ['DO NOT TUMBLE DRY','Pas de séchage en tambour','No usar secadora','dryX'],
+  ['TUMBLE DRY MEDIUM','Séchage en tambour température modérée','Secadora temperatura media','dryMed'],
+  ['TUMBLE DRY LOW (60°C)','Séchage en tambour 60°C','Secadora baja 60°C','dryLow'],
+  ['ANY BLEACHING AGENT ALLOWED','Tout agent de blanchiment','Cualquier blanqueador','bleachAny'],
+  ['ONLY NON-CHLORINE BLEACH WHEN NEEDED','Produits de blanchiment oxygénés uniquement','Solo blanqueador sin cloro permitido','bleachOxygen'],
+  ['DO NOT BLEACH','Pas de blanchiment','No usar lejía','bleachX'],
+  ['HAND WASH','Lavage à la main','Lavar a mano','washHand'],
+  ['DO NOT WASH','Lavage interdit','No lavar','washX'],
+  ['NORMAL PROCESS 60°C','Lavage 60°C cycle normal','60°C proceso normal','wash30'],
+  ['MILD PROCESS 60°C','Lavage 60°C cycle délicat','60°C proceso suave','wash30'],
+  ['NORMAL PROCESS 40°C','Lavage 40°C cycle normal','40°C proceso normal','wash30'],
+  ['MILD PROCESS 40°C','Lavage 40°C cycle délicat','40°C proceso suave','wash30'],
+  ['VERY MILD PROCESS 40°C','Lavage 40°C cycle très délicat','40°C proceso muy suave','wash30'],
+  ['NORMAL PROCESS 30°C','Lavage 30°C cycle normal','30°C proceso normal','wash30'],
+  ['MILD PROCESS 30°C','Lavage 30°C cycle délicat','30°C proceso suave','wash30'],
+  ['MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE','Lavage en machine max. 30°C, couleurs similaires, cycle très délicat','30°C, colores similares, proceso muy suave','wash30'],
+  ['MACHINE WASH COLD SEPARATELY','Laver à la machine à l\'eau froide séparément','Temperatura máxima de lavado 30°C por separado','wash30'],
+const CARE_LOOKUP = [
+
+];
+  ['WOOL','laine','LANA'],
+  ['ORGANIC COTTON','coton bio','ALGODÓN ORGÁNICO'],['SILK','soie','SEDA'],
+  ['LINEN','lin','LINO'],['MOHAIR','mohair','MOHAIR'],
+  ['FEATHER','plumes','PLUMAS'],['WATERFOWL FEATHERS','plumes d\'oiseaux aquatiques','PLUMAS DE AVES ACUÁTICAS'],
+  ['CASHMERE','cachemire','CACHEMIRA'],['DOWN','duvet','PLUMÓN'],
+  ['POLYESTER','polyester','poliéster'],['POLYURETHANE','polyuréthane','POLIURETANO'],
+  ['NYLON / POLYAMIDE','polyamide (nylon)','POLIAMIDA / NAILON'],
+  ['MODACRYLIC','modacrylique','MODACRÍLICO'],['RAYON / VISCOSE','viscose','VISCOSA'],
+  ['ACRYLIC','acrylique','ACRÍLICO'],['MODAL','modal','MODAL'],
+  ['COTTON','coton','ALGODÓN'],['ELASTANE / SPANDEX','élasthanne','ELASTANO'],
+const FABRIC_LOOKUP = [
+// ===== 查询数据（来自 Excel）=====
+<script>
+
+</div>
+  </div>
+    </div>
+      <div id="qSymbolChart" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+      <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:8px;">ISO 3758 符号图鉴</div>
+    <div style="margin-top:16px;">
+    <!-- ISO符号图鉴 -->
+
+    </div>
+      </div>
+        <div id="qCareResult" style="font-size:12px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">选择后显示...</div>
+        </select>
+          <option value="">-- 选择洗护指令 --</option>
+        <select id="qCare" style="margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">洗护指令对照 EN / FR / ES + 符号</div>
+      <div>
+      <!-- 洗护指令查询 -->
+
+      </div>
+        <div id="qFabricResult" style="font-size:13px;line-height:1.8;background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;">输入后自动显示...</div>
+        <input type="text" id="qFabric" placeholder="输入英文成分，如 cotton, spandex, wool..." style="margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:600;color:#86909c;margin-bottom:6px;">成分名称翻译 EN → FR / ES</div>
+      <div>
+      <!-- 成分翻译查询 -->
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="group-title" style="font-size:14px;color:#1f2329;margin-bottom:12px;">洗护规则查询（来自 S27 HOUSE CARE LABEL RULE）</div>
+  <div class="panel" style="max-height:none;">
+<div style="max-width:1500px;margin:0 auto 20px;padding:0 24px;">
+<!-- ===== 查询面板 ===== -->
+
+</div>
+
+</div>
+  </div>
+    <div class="label-sheet" id="sheet"></div>
+  <div class="preview-area">
+
+  </div>
+    </div>
+      </select>
+        <option value="6">6</option>
+        <option value="4" selected>4</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      <select id="copies">
+      <label class="field">并排条数</label>
+      <input type="text" id="qty" placeholder="如 4250">
+      <label class="field">数量（底部红色标注，留空不显示）</label>
+      <input type="text" id="labelWidth" value="35">
+      <label class="field">水洗标宽度（mm，实物尺寸）</label>
+      <div class="group-title">打印设置</div>
+    <div class="group">
+
+    </div>
+      </select>
+        <option value="DRY CLEAN">DRY CLEAN</option>
+        <option value="DO NOT DRY CLEAN">DO NOT DRY CLEAN</option>
+      <select id="dryclean">
+      <label class="field">干洗 Professional Care</label>
+      </select>
+        <option value="DO NOT IRON">DO NOT IRON</option>
+        <option value="COOLIRON IF NEEDED">COOLIRON IF NEEDED</option>
+        <option value="COOL IRON FROM INSIDE IF NEEDED.">COOL IRON FROM INSIDE IF NEEDED.</option>
+      <select id="iron">
+      <label class="field">熨烫 Ironing</label>
+      </select>
+        <option value="FLAT DRY">FLAT DRY</option>
+        <option value="LINE DRY">LINE DRY</option>
+        <option value="DO NOT TUMBLE DRY">DO NOT TUMBLE DRY</option>
+        <option value="TUMBLE DRY LOW">TUMBLE DRY LOW</option>
+        <option value="TUMBLE DRYLOW">TUMBLE DRYLOW</option>
+        <option value="TUMBLE DRY MEDIUM">TUMBLE DRY MEDIUM</option>
+      <select id="dry">
+      <label class="field">烘干 Drying</label>
+      </select>
+        <option value="ANY BLEACHING AGENT ALLOWED">ANY BLEACHING AGENT ALLOWED</option>
+        <option value="ONLY NON-CHLORINE BLEACH WHEN NEEDED.">ONLY NON-CHLORINE BLEACH WHEN NEEDED.</option>
+        <option value="DO NOT BLEACH">DO NOT BLEACH</option>
+      <select id="bleach">
+      <label class="field">漂白 Bleaching</label>
+      </select>
+        <option value="DO NOT WASH">DO NOT WASH</option>
+        <option value="HAND WASH COLD">HAND WASH COLD</option>
+        <option value="MACHINE WASH COLD">MACHINE WASH COLD</option>
+        <option value="MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE">MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE</option>
+        <option value="MACHINE WASH COLD SEPARATELY">MACHINE WASH COLD SEPARATELY</option>
+      <select id="wash">
+      <label class="field">洗涤 Washing</label>
+      <div class="group-title">洗护指令</div>
+    <div class="group">
+
+    </div>
+      <label class="check"><input type="checkbox" id="decor"> 显示 "EXCLUSIVE OF DECORATION"（仅 EdgeHill 需要）</label>
+      </div>
+        </div>
+          <input type="text" id="ys" value="04/2026">
+          <label class="field">追踪码日期（月/年）</label>
+        <div>
+        </div>
+          <input type="text" id="rn" value="58909">
+          <label class="field">RN #</label>
+        <div>
+      <div class="row2">
+      <input type="text" id="origin" value="MADE IN CHINA">
+      <label class="field">产地</label>
+      <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:5px 12px;" onclick="recommendCare()">根据成分推荐洗护</button>
+35% NYLON</textarea>
+      <textarea id="composition">65% ACRYLIC
+      <label class="field">成分（英文，多部位分行写）</label>
+      <div class="group-title">成分与产地</div>
+    <div class="group">
+
+    </div>
+      </select>
+        <option value="c">模板C：ANDY &amp; EVAN 三语（RN#136762）</option>
+        <option value="b">模板B：EdgeHill（RN58909，无符号）</option>
+        <option value="a_sym">模板A-SH：Scene&Heard（RN#58909，有符号行）</option>
+        <option value="a_adv">模板A：ADV/CC（RN#58909，无符号行）</option>
+        <option value="auto">自动识别</option>
+      <select id="templateOverride">
+      <label class="field">手动覆盖模板（一般不用改）</label>
+      <div id="brandBadge"></div>
+      <input type="text" id="styleNo" value="F64SW840B/J">
+      <label class="field">STYLE 款号</label>
+      <div class="group-title">款号（自动识别品牌）</div>
+    <div class="group">
+  <div class="panel">
+<div class="main">
+
+</div>
+  </div>
+    <button class="btn" onclick="window.print()">打印 / 存 PDF</button>
+    <button class="btn ghost" onclick="resetForm()">清空</button>
+  <div>
+  <div><h1>水洗标生成器 <span class="sub">输入款号自动识别品牌、自动套模板</span></h1></div>
+<div class="topbar">
+
+<body>
+</head>
+</style>
+  }
+    .panel { max-height: none; }
+    .main { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+  }
+    @page { size: A4; margin: 8mm; }
+    .care-label { border: none; }
+    .label-sheet { box-shadow: none; padding: 0; gap: 8mm; }
+    .preview-area { padding: 0; }
+    .main { display: block; padding: 0; }
+    .topbar, .panel { display: none !important; }
+  @media print {
+
+  .tpl-c .origin, .tpl-c .rn, .tpl-c .ys { font-size: 8px !important; }
+  .tpl-c .addr { font-size: 6.5px; line-height: 1.3; text-align: center; margin-top: 3px; }
+  .tpl-c .care-fr, .tpl-c .care-es { font-size: 7px; line-height: 1.35; text-align: center; margin: 3px 0; }
+  .tpl-c .comp-fr, .tpl-c .comp-es { font-size: 8px; font-weight: bold; margin-bottom: 3px; white-space: pre-line; text-align: center; }
+  .tpl-c .symbols svg { width: 13px !important; height: 13px !important; }
+  .tpl-c .care-text { font-size: 8.5px !important; line-height: 1.35; margin: 3px 0; }
+  .tpl-c .comp { font-size: 9px !important; margin-bottom: 4px; }
+  .tpl-c .lang-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .tpl-c .lang-block { margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px dashed #e88ba8; }
+  .tpl-c .brand-logo { font-family: Georgia, "Times New Roman", serif; font-size: 10px; font-weight: bold; letter-spacing: .5px; margin-bottom: 5px; }
+  .tpl-b .care-text { font-size: 9.5px; line-height: 1.5; }
+  .tpl-b .ys-b { font-weight: bold; font-size: 12px; text-align: center; margin-top: 2px; }
+  .tpl-b .rn-b { font-weight: bold; font-size: 12px; text-align: center; }
+  .tpl-b .style-b { font-style: italic; font-size: 12px; margin-bottom: 12px; text-align: center; white-space: nowrap; }
+  .tpl-b .care-text-b { font-style: italic; font-size: 11.5px; white-space: pre-line; margin-bottom: 14px; line-height: 1.4; text-align: center; }
+  .tpl-b .rule-b { border-top: 2px dashed #3399cc; margin: 0 -12px 14px; }
+  .tpl-b .origin-b { font-style: italic; font-size: 13px; margin-bottom: 14px; text-align: center; }
+  .tpl-b .decor-b { font-style: italic; font-size: 12.5px; margin-bottom: 16px; text-align: center; line-height: 1.3; }
+  .tpl-b .comp-b { font-style: italic; font-size: 13px; margin-bottom: 16px; white-space: pre-line; text-align: center; }
+  }
+    text-align: center;
+    line-height: 1.4;
+    padding: 16px 12px;
+    border: 2px solid #3399cc;
+    font-family: "Times New Roman", Times, Georgia, serif;
+  .tpl-b {
+  .tpl-a, .tpl-b, .tpl-c { width: auto; }
+
+  .care-label .qty { color: #e63946; font-size: 13px; font-weight: bold; margin-top: 8px; }
+  .care-label .style { margin-top: 6px; font-size: 10.5px; }
+  .care-label .symbols svg { width: 20px; height: 20px; }
+  .care-label .symbols { display: flex; justify-content: center; gap: 3px; margin: 6px 0; }
+  .care-label .care-text { margin: 6px 0; white-space: pre-line; }
+  .care-label .ys { font-size: 10px; margin-bottom: 6px; }
+  .care-label .rn { font-size: 10px; }
+  .care-label .origin { margin: 5px 0; }
+  .care-label .decor { font-size: 10px; margin: 3px 0; }
+  .care-label .comp { font-weight: bold; font-size: 11px; margin-bottom: 6px; white-space: pre-line; }
+  .care-label { background: #fff; border-left: 1px solid #333; border-right: 1px solid #333; border-top: 1px dashed #999; border-bottom: 1px dashed #999; padding: 14px 10px; font-family: Arial, Helvetica, sans-serif; color: #000; text-align: center; font-size: 10.5px; line-height: 1.45; }
+
+  .label-sheet { background: #fff; padding: 30px; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,.08); display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+  .preview-area { display: flex; justify-content: center; align-items: flex-start; padding: 10px; }
+  .brand-badge { display: inline-block; background: #e8f3ff; color: #165dff; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .check input { cursor: pointer; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4e5969; margin-top: 6px; cursor: pointer; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  textarea { resize: vertical; min-height: 50px; }
+  input[type=text]:focus, select:focus, textarea:focus { outline: none; border-color: #165dff; }
+  input[type=text], select, textarea { width: 100%; padding: 7px 9px; font-size: 13px; border: 1px solid #e5e6eb; border-radius: 5px; background: #fff; font-family: inherit; }
+  label.field { display: block; font-size: 12px; color: #4e5969; margin: 8px 0 3px; }
+  .group-title { font-size: 12px; font-weight: 600; color: #86909c; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f0f2f5; }
+  .group { margin-bottom: 16px; }
+  .panel { background: #fff; border-radius: 8px; padding: 18px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  .main { display: grid; grid-template-columns: 400px 1fr; gap: 20px; padding: 20px 24px; max-width: 1500px; margin: 0 auto; }
+  .btn.ghost { background: #fff; color: #165dff; border: 1px solid #165dff; margin-right: 8px; }
+  .btn:hover { background: #0e4bdb; }
+  .btn { background: #165dff; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .topbar .sub { font-size: 12px; color: #86909c; margin-left: 10px; font-weight: 400; }
+  .topbar h1 { font-size: 17px; font-weight: 600; }
+  .topbar { background: #fff; border-bottom: 1px solid #e5e6eb; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1f2329; min-height: 100vh; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+<style>
+<title>水洗标生成器 Care Label Generator</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23165dff'/%3E%3Cpath d='M18 26 L21 48 L43 48 L46 26 Z' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M21 34 Q25 31 29 34 T37 34 T45 34' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="UTF-8">
+<head>
+<html lang="zh-CN">
+<!DOCTYPE html>
+</html>
+</script>
+</body>
+</html>

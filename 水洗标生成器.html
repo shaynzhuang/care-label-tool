@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23165dff'/%3E%3Cpath d='M18 26 L21 48 L43 48 L46 26 Z' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<title>Care Label Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#1f2329}
+.topbar{background:#fff;border-bottom:1px solid #e5e6eb;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:17px;font-weight:600}
+.topbar .sub{font-size:12px;color:#86909c;font-weight:400}
+.btn{background:#165dff;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer}
+.btn.ghost{background:#fff;color:#165dff;border:1px solid #165dff;margin-right:8px}
+.main{display:grid;grid-template-columns:400px 1fr;gap:20px;padding:20px 24px;max-width:1500px;margin:0 auto}
+.panel{background:#fff;border-radius:8px;padding:18px;max-height:calc(100vh - 110px);overflow-y:auto}
+.group{margin-bottom:16px}
+.group-title{font-size:12px;font-weight:600;color:#86909c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #f0f2f5}
+label.field{display:block;font-size:12px;color:#4e5969;margin:8px 0 3px}
+input[type=text],select,textarea{width:100%;padding:7px 9px;font-size:13px;border:1px solid #e5e6eb;border-radius:5px;font-family:inherit}
+textarea{resize:vertical;min-height:50px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{display:flex;align-items:center;gap:6px;font-size:12px;color:#4e5969;margin-top:6px}
+.brand-badge{display:inline-block;background:#e8f3ff;color:#165dff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600;margin-top:6px}
+.preview-area{display:flex;justify-content:center;padding:10px}
+.label-sheet{background:#fff;padding:20px;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.08);display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.care-label{background:#fff;font-family:Arial,sans-serif;color:#000;text-align:center;font-size:10.5px;line-height:1.45;display:flex;flex-direction:column}
+.care-label .half-top{min-height:150px;display:flex;flex-direction:column;justify-content:center;padding:8px;line-height:1.4}
+.care-label .half-bot{min-height:150px;display:flex;flex-direction:column;justify-content:center;padding:8px;line-height:1.4}
+.care-label .fold{border-top:1px dashed #999;flex-shrink:0}
+.care-label.edge{border-left:1px solid #333;border-right:1px solid #333}
+.care-label .comp{font-weight:bold;font-size:11px;margin-bottom:8px;white-space:pre-line}
+.care-label .origin{margin:4px 0}
+.care-label .rn{font-size:10px;margin:2px 0}
+.care-label .ys{font-size:10px;margin:2px 0}
+.care-label .care-text{margin:6px 0;white-space:pre-line}
+.care-label .symbols{display:flex;justify-content:center;gap:4px;margin:6px 0}
+.care-label .symbols svg{width:20px;height:20px}
+.care-label .style{margin-top:6px;font-size:10.5px}
+.care-label .qty{color:#e63946;font-size:13px;font-weight:bold;margin:6px 0}
+.tpl-b{font-family:Georgia,serif;border:2px solid #3399cc}
+.tpl-b .fold{border-top:2px dashed #3399cc;flex-shrink:0}
+.tpl-b .tail{height:18px;flex-shrink:0}
+.tpl-b .half-top{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 10px}
+.tpl-b .half-bot{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 10px}
+.tpl-b .comp-b{font-style:italic;font-size:12px;margin-bottom:12px;line-height:1.4}
+.tpl-b .decor-b{font-style:italic;font-size:12px;margin-bottom:12px;line-height:1.4}
+.tpl-b .origin-b{font-style:italic;font-size:12px;margin-bottom:10px;line-height:1.4}
+.tpl-b .care-text-b{font-style:italic;font-size:12px;margin-bottom:10px;line-height:1.4;text-align:center}
+.tpl-b .style-b{font-style:italic;font-size:12px;margin-bottom:8px;line-height:1.4}
+.tpl-b .rn-b,.tpl-b .ys-b{font-weight:bold;font-style:italic;font-size:12px;text-align:center;line-height:1.4}
+.tpl-c{font-family:Georgia,serif!important;border:1.5px solid #e88ba8;padding:6px 8px!important;text-align:center}
+.tpl-c .brand-logo{font-family:Georgia,serif;font-size:11px;font-weight:bold;margin-bottom:6px;letter-spacing:0.5px}
+.tpl-c .lang-block{margin-bottom:6px;padding-bottom:6px;border-bottom:1.5px dashed #e88ba8}
+.tpl-c .lang-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.tpl-c .comp{font-size:9px!important;margin-bottom:4px}
+.tpl-c .care-text{font-size:8.5px!important;line-height:1.4;text-align:center}
+.tpl-c .sym-row{font-size:9px;margin:4px 0;line-height:1}
+.tpl-c .origin{font-size:8.5px!important;margin:3px 0}
+.tpl-c .rn{font-size:8.5px!important;margin:2px 0}
+.tpl-c .ys{font-size:8px!important;margin:2px 0 4px}
+.tpl-c .importer{font-size:8px!important;line-height:1.3;margin-top:4px;text-align:center}
+.query-panel{max-width:1500px;margin:0 auto 20px;padding:0 24px}
+.query-panel .panel{max-height:none}
+.query-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.qbox{background:#f7f8fa;padding:10px;border-radius:5px;min-height:40px;font-size:13px;line-height:1.8;margin-top:6px}
+.chart{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.chart-item{text-align:center;width:80px}
+.chart-item svg{width:36px;height:36px}
+.chart-item span{font-size:10px;color:#4e5969;display:block;margin-top:2px}
+.cat-label{font-size:11px;font-weight:600;color:#165dff;margin:10px 0 4px}
+@media print{.topbar,.panel,.query-panel{display:none!important}.main{display:block;padding:0}.label-sheet{box-shadow:none;padding:0}.care-label{border:none}@page{size:A4;margin:8mm}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><h1>Care Label Generator <span class="sub">Auto brand detection &amp; template layout</span></h1></div>
+  <div><button class="btn ghost" onclick="resetForm()">Clear</button><button class="btn" onclick="window.print()">Print / Save PDF</button></div>
+</div>
+<div class="main">
+  <div class="panel">
+    <div class="group">
+      <div class="group-title">Style Number (auto brand)</div>
+      <label class="field">STYLE #</label>
+      <input type="text" id="styleNo" value="F64SW840B/J">
+      <div id="brandBadge"></div>
+      <label class="field">Override Template</label>
+      <select id="templateOverride">
+        <option value="auto">Auto detect</option>
+        <option value="a_adv">Template A: ADV/CC (no symbols)</option>
+        <option value="a_sym">Template A-SH: Scene&amp;Heard (with symbols)</option>
+        <option value="b">Template B: EdgeHill (serif italic blue border)</option>
+        <option value="c">Template C: ANDY &amp; EVAN trilingual</option>
+      </select>
+    </div>
+    <div class="group">
+      <div class="group-title">Composition &amp; Origin</div>
+      <label class="field">Composition (EN, line per part)</label>
+      <textarea id="composition">100% COTTON</textarea>
+      <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:5px 12px;" onclick="recommendCare()">Recommend care by fabric</button>
+      <label class="field">Origin</label>
+      <input type="text" id="origin" value="MADE IN CHINA">
+      <div class="row2">
+        <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
+        <div><label class="field">Tracking date (MM/YYYY)</label><input type="text" id="ys" value="26/04"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="decor"> Show "EXCLUSIVE OF DECORATION" (EdgeHill)</label>
+    </div>
+    <div class="group">
+      <div class="group-title">Care Instructions</div>
+      <label class="field">Washing</label>
+      <select id="wash">
+        <option>Do not wash</option>
+        <option>Hand wash</option>
+        <option selected>Machine wash cold with like colors. Gentle cycle.</option>
+        <option>Mild process (30-50°C)</option>
+        <option>Normal process (30-60°C)</option>
+        <option>Very mild process (40°C)</option>
+      </select>
+      <label class="field">Bleaching</label>
+      <select id="bleach">
+        <option selected>Do not bleach.</option>
+        <option>Only non-chlorine bleach when needed.</option>
+        <option>Any bleaching agent allowed</option>
+      </select>
+      <label class="field">Drying</label>
+      <select id="dry">
+        <option selected>Tumble dry low temperature</option>
+        <option>Tumble dry normal temperature</option>
+        <option>Do not tumble dry</option>
+        <option>Line drying</option>
+        <option>Flat drying</option>
+      </select>
+      <label class="field">Ironing</label>
+      <select id="iron">
+        <option selected>Cool iron from inside if needed.</option>
+        <option>Iron at medium temperature (max 150°C)</option>
+        <option>Iron at high temperature (max 200°C)</option>
+        <option>Do not iron</option>
+      </select>
+      <label class="field">Professional Care</label>
+      <select id="dryclean">
+        <option selected>Do not dry clean.</option>
+        <option>Professional dry cleaning mild process</option>
+        <option>Professional dry cleaning normal process</option>
+        <option>Do not wet clean.</option>
+      </select>
+    </div>
+    <div class="group">
+      <div class="group-title">Print Setup</div>
+      <label class="field">Label width (mm)</label>
+      <input type="text" id="labelWidth" value="35">
+      <label class="field">Quantity (red, blank = hide)</label>
+      <input type="text" id="qty" placeholder="e.g. 4250">
+      <label class="field">Copies across</label>
+      <select id="copies"><option>1</option><option>2</option><option selected>4</option><option>6</option></select>
+    </div>
+  </div>
+  <div class="preview-area"><div class="label-sheet" id="sheet"></div></div>
+</div>
+
+<div class="query-panel">
+  <div class="panel">
+    <div class="group-title" style="font-size:14px;color:#1f2329;">Care Label Rule Reference (from S27 HOUSE CARE LABEL RULE)</div>
+    <div class="query-grid">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;">Fabric Translation EN / FR / ES</div>
+        <input type="text" id="qFabric" placeholder="Type fabric, e.g. cotton, spandex..." style="margin-top:6px;">
+        <div class="qbox" id="qFabricResult">Type to search...</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#86909c;">Care Instruction EN / FR / ES + ISO Symbol</div>
+        <select id="qCare" style="margin-top:6px;"><option value="">-- Select care instruction --</option></select>
+        <div class="qbox" id="qCareResult">Select to view...</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-size:12px;font-weight:600;color:#86909c;">ISO 3758 Symbol Chart</div>
+      <div class="chart" id="qSymbolChart"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYM = {
+  wash30:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><text x="20" y="27" text-anchor="middle" font-size="11" font-family="Arial" stroke="none" fill="#000">30</text></svg>',
+  wash40:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><text x="20" y="27" text-anchor="middle" font-size="11" font-family="Arial" stroke="none" fill="#000">40</text></svg>',
+  washHand:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><path d="M10 34 L30 34" stroke-width="1.5"/></svg>',
+  washX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  bleachX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z" fill="#000"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  bleachOxygen:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/><line x1="12" y1="20" x2="26" y2="30"/><line x1="16" y1="16" x2="30" y2="26"/></svg>',
+  bleachAny:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/></svg>',
+  dryLow:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><circle cx="20" cy="20" r="2" fill="#000" stroke="none"/></svg>',
+  dryMed:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><circle cx="17" cy="20" r="1.8" fill="#000"/><circle cx="23" cy="20" r="1.8" fill="#000"/></svg>',
+  dryX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  iron1:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><circle cx="20" cy="24" r="2" fill="#000" stroke="none"/></svg>',
+  iron2:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><circle cx="17" cy="24" r="1.8" fill="#000"/><circle cx="23" cy="24" r="1.8" fill="#000"/></svg>',
+  iron3:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><circle cx="14" cy="24" r="1.6" fill="#000"/><circle cx="20" cy="24" r="1.6" fill="#000"/><circle cx="26" cy="24" r="1.6" fill="#000"/></svg>',
+  ironX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M7 30 L7 20 Q7 11 16 11 L27 11 L34 21 L34 30 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  dc:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><circle cx="20" cy="20" r="13"/></svg>',
+  dcX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><circle cx="20" cy="20" r="13"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  wetX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><circle cx="20" cy="20" r="13"/><text x="20" y="25" text-anchor="middle" font-size="9" font-family="Arial" stroke="none" fill="#000">W</text><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  lineDry:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M10 35 L20 8 L30 35 Z"/><line x1="8" y1="8" x2="32" y2="8"/></svg>',
+  lineShade:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M10 35 L20 8 L30 35 Z"/><line x1="8" y1="8" x2="32" y2="8"/><line x1="12" y1="18" x2="28" y2="18"/></svg>',
+  flatDry:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="8" y="15" width="24" height="14"/><line x1="8" y1="15" x2="32" y2="15"/></svg>',
+  flatShade:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="8" y="15" width="24" height="14"/><line x1="8" y1="15" x2="32" y2="15"/><line x1="12" y1="22" x2="28" y2="22"/></svg>',
+  dripLine:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M12 12 L28 12 L24 32 L16 32 Z"/><line x1="8" y1="8" x2="32" y2="8"/></svg>',
+  dripFlat:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="10" y="12" width="20" height="16"/><line x1="14" y1="16" x2="26" y2="16"/><line x1="14" y1="22" x2="26" y2="22"/></svg>'
+};
+function $(id){return document.getElementById(id)}
+function detectTemplate(s){s=s.toUpperCase();if(s.startsWith('F64EH')||s.startsWith('S74EH'))return'b';if(s.startsWith('F26'))return'c';if(s.startsWith('F64AW')||s.startsWith('F64SL')||s.startsWith('S74AW'))return'a_adv';if(s.startsWith('F64SW')||s.startsWith('F54SH')||s.startsWith('S64SM'))return'a_sym';return'a_adv'}
+function getBrandCode(){const s=$('styleNo').value.toUpperCase();if(s.startsWith('F64SL'))return'S27CC';if(s.startsWith('F64SW')||s.startsWith('S64SM'))return'S27SH';if(s.startsWith('F64AW')||s.startsWith('S74AW'))return'S27AD';if(s.startsWith('F64EH')||s.startsWith('S74EH'))return'S27EC';if(s.startsWith('F26'))return'S27AE';return'S27XX'}
+function trackingLine(){return getBrandCode()+'/YS/'+$('ys').value}
+function symbolsFor(){const w=$('wash').value,b=$('bleach').value,d=$('dry').value,i=$('iron').value,dc=$('dryclean').value;let o=[];if(w.includes('Do not wash'))o.push('washX');else if(w.includes('Hand'))o.push('washHand');else if(w.includes('40'))o.push('wash40');else o.push('wash30');if(b.includes('Do not'))o.push('bleachX');else if(b.includes('non-chlorine'))o.push('bleachOxygen');else o.push('bleachAny');if(d.includes('Do not'))o.push('dryX');else if(d.includes('low'))o.push('dryLow');else if(d.includes('Line'))o.push('lineDry');else o.push('dryMed');if(i.includes('Do not'))o.push('ironX');else if(i.includes('150'))o.push('iron2');else if(i.includes('200'))o.push('iron3');else o.push('iron1');if(dc.includes('Do not dry'))o.push('dcX');else if(dc.includes('Do not wet'))o.push('wetX');else o.push('dc');return o.map(k=>SYM[k]||'').join('')}
+function render(){
+  const tpl=$('templateOverride').value==='auto'?detectTemplate($('styleNo').value):$('templateOverride').value;
+  const w=parseFloat($('labelWidth').value)||35,sc=w/35,n=parseInt($('copies').value);
+  let careArr=[$('wash').value,$('bleach').value,$('dry').value,$('iron').value,$('dryclean').value];if(tpl==='a_adv'||tpl==='a_sym'||tpl==='b')careArr=careArr.map(x=>x.toUpperCase());const comp=$('composition').value,care=careArr.join('<br>');
+  const styleNo=$('styleNo').value,qty=$('qty').value,dec=$('decor').checked;
+  $('brandBadge').innerHTML='<span class="brand-badge">'+({a_adv:'ADV/CC',a_sym:'SH with symbols',b:'EdgeHill',c:'ANDY&EVAN trilingual'}[tpl])+'</span>';
+  let h='';
+  for(let c=0;c<n;c++){
+    if(tpl==='b'){
+      // EdgeHill: top half = comp+decor+origin, bottom half = care+style+rn+ys
+      h+='<div class="care-label tpl-b" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
+      h+='<div class="tail"></div><div class="fold"></div>';
+      h+='<div class="half-top"><div class="comp-b">'+comp+'</div>';
+      if(dec)h+='<div class="decor-b">Exclusive<br>of Decoration</div>';
+      h+='<div class="origin-b">'+$('origin').value+'</div></div>';
+      h+='<div class="fold"></div>';
+      h+='<div class="half-bot"><div class="care-text-b">'+care+'</div><div class="style-b">Style # '+styleNo+'</div><div class="rn-b">RN'+$('rn').value+'</div><div class="ys-b">'+trackingLine()+'</div></div>';
+      h+='<div class="fold"></div><div class="tail"></div>';
+      h+='</div>';
+    }else if(tpl==='c'){
+      // ANDY & EVAN: label1 = EN+FR, label2 = ES+importer
+      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
+      h+='<div class="brand-logo">ANDY & EVAN&reg;</div>';
+      h+='<div class="lang-block"><div class="comp">'+comp+'</div><div class="care-text">'+careArr.join('<br>')+'</div><div class="sym-row">&#x2647; &#x25B3; &#9673; &#9735; &#9672;</div><div class="origin">'+$('origin').value+'</div><div class="rn">RN#'+$('rn').value+'</div><div class="ys">'+trackingLine()+'</div></div>';
+      h+='<div class="lang-block"><div class="comp">100% Coton</div><div class="care-text">Lavage en machine max. 30°C. Laver avec des couleurs similaires.<br>Cycle doux.<br>Pas de blanchiment.<br>Séchage en tambour autorisé, température modérée 60°C.<br>Repasser au froid de l’intérieur si nécessaire.<br>Pas d’entretien professionnel à sec.</div><div class="origin">Fabriqué en Chine</div><div class="rn">WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div></div>';
+      h+='</div>';
+      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;margin-top:6px;">';
+      h+='<div class="lang-block"><div class="comp">100% Algodón</div><div class="care-text">Temperatura máxima de lavado 30°C.<br>Lavar con colores similares.<br>Proceso muy suave.<br>No usar lejía.<br>Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C.<br>Hierro frío desde el interior si es necesario.<br>No limpiar en seco.</div><div class="origin">Hecho en China</div></div>';
+      h+='<div class="lang-block"><div class="importer">IMPORTADO POR:<br>IMPORTADORA PRIMEX<br>S.A. DE C.V.<br>BLVD. MAGNOCENTRO<br>NO. 4 SAN FERNANDO<br>LA HERRADURA<br>HUIXQUILUCAN,<br>ESTADO DE MEXICO<br>C.P. 52765<br>RFC: IPR-903070-S70</div></div>';
+      h+='</div>';
+    }else{
+      // ADV/CC/SH: top half = comp+origin+rn+ys, bottom half = care+[symbols]+style
+      h+='<div class="care-label edge" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
+      h+='<div class="tail"></div><div class="fold"></div>';
+      h+='<div class="half-top"><div class="comp">'+comp+'</div><div class="origin">'+$('origin').value+'</div><div class="rn">RN#'+$('rn').value+'</div><div class="ys">'+trackingLine()+'</div></div>';
+      h+='<div class="fold"></div>';
+      h+='<div class="half-bot"><div class="care-text">'+care+'</div>';
+      if(tpl==='a_sym')h+='<div class="symbols">'+symbolsFor()+'</div>';
+      h+='<div class="style">STYLE '+styleNo+'</div></div>';
+      h+='<div class="fold"></div><div class="tail"></div>';
+      if(qty)h+='<div class="qty">'+qty+'</div>';
+      h+='</div>';
+    }
+  }
+  $('sheet').innerHTML=h;
+}
+function recommendCare(){const c=$('composition').value.toUpperCase();if(c.includes('WOOL')||c.includes('SILK')){$('wash').value='Hand wash';$('dry').value='Do not tumble dry';}render()}
+function resetForm(){document.querySelectorAll('input[type=text],textarea').forEach(e=>e.value='');$('decor').checked=false;render()}
+
+const FABRIC_LOOKUP = [["ELASTANE / SPANDEX", "Élasthanne", "Elastano"], ["ACRYLIC", "Acrylique", "Acrílico"], ["MODAL", "modal", "MODAL"], ["MODACRYLIC", "modacrylique", "MODACRÍLICO"], ["RAYON / VISCOSE", "viscose", "VISCOSA"], ["NYLON / POLYAMIDE", "polyamide (nylon)", "POLIAMIDA / NAILON"], ["POLYESTER", "polyester", "poliéster"], ["POLYURETHANE", "polyuréthane", "POLIURETANO"], ["COTTON", "coton", "ALGODÓN"], ["CASHMERE", "cachemire", "CACHEMIRA"], ["DOWN", "duvet", "PLUMÓN"], ["FEATHER", "plumes", "PLUMAS"], ["WATERFOWL FEATHERS", "plumes d'oiseaux aquatiques", "PLUMAS DE AVES ACUÁTICAS"], ["LINEN", "lin", "LINO"], ["MOHAIR", "mohair", "MOHAIR"], ["ORGANIC COTTON", "coton bio", "ALGODÓN ORGÁNICO"], ["SILK", "soie", "SEDA"], ["WOOL", "laine", "LANA"], ["SHELL", "Matière principale", "Cuerpo"], ["LINING", "Doublure", "Forro"], ["FILLING", "Garnissage", "Relleno"], ["EXCLUSIVE OF DECORATION", "Sauf garnitures", "Excepto adornos"], ["CROCHET", "Articles pour crochet", "Artículos de ganchillo"], ["CONTRAST FABRIC", "Tissu de contraste", "Tejido de contraste"], ["TULLE", "Tulle", "Tul"], ["LACE", "Dentelle", "Encaje"], ["BODY", "Corps", "Cuerpo"]];
+const CARE_LOOKUP = [["1) Washing", "Do not wash", "Lavage interdit.", "No lavar", "washX"], ["1) Washing", "Hand wash", "Lavage à la main.", "Lavar a mano", "washHand"], ["1) Washing", "Machine wash cold with like colors. Gentle cycle.", "Lavage max 30°C, couleurs similaires, cycle très délicat.", "30°C, colores similares, proceso muy suave.", "wash30"], ["1) Washing", "Mild Process (30-50°C)", "Lavage max 30-50°C, cycle délicat.", "Máx 30-50°C, proceso suave.", "wash30"], ["1) Washing", "Normal Process (30-60°C)", "Lavage max 30-60°C, cycle normal.", "Máx 30-60°C, proceso normal.", "wash40"], ["1) Washing", "Very mild process (40°C)", "Lavage max 40°C, cycle très délicat.", "40°C, proceso muy suave.", "wash40"], ["1) Washing", "Wash with like colors", "Laver avec des couleurs similaires.", "Lavar con colores similares.", "wash30"], ["1) Washing", "Do not use fabric softener", "Ne pas utiliser d'assouplissant.", "No usar suavizante.", ""], ["1) Washing", "Wash before first use", "Laver avant la première utilisation.", "Lavar antes del primer uso.", ""], ["2) Bleaching", "Do not bleach.", "Pas de blanchiment.", "No usar lejía.", "bleachX"], ["2) Bleaching", "Only Oxygen / non-chlorine bleach allowed", "Produits oxygénés uniquement.", "Solo blanqueador oxigenado / sin cloro.", "bleachOxygen"], ["2) Bleaching", "Any bleaching agent allowed", "Tous types de blanchiment autorisés.", "Cualquier agente blanqueador permitido.", "bleachAny"], ["3) Drying", "Do not tumble dry", "Pas de séchage en tambour.", "No usar secadora.", "dryX"], ["3) Drying", "Tumble dry low temperature (60°C)", "Séchage en tambour 60°C.", "Secadora baja, máx. 60°C.", "dryLow"], ["3) Drying", "Tumble dry normal temperature (80°C)", "Séchage en tambour 80°C.", "Secadora normal, máx. 80°C.", "dryMed"], ["3) Drying", "Line drying", "Séchage sur fil.", "Secar tendido.", "lineDry"], ["3) Drying", "Drip line drying", "Séchage sur fil sans essorage.", "Secar colgado por goteo.", "dripLine"], ["3) Drying", "Flat drying", "Séchage à plat.", "Secar extendido.", "flatDry"], ["3) Drying", "Drip flat drying", "Séchage à plat sans essorage.", "Secado plano por goteo.", "dripFlat"], ["3) Drying", "Line drying in shade", "Séchage sur fil à l'ombre.", "Secar colgado a la sombra.", "lineShade"], ["3) Drying", "Flat drying in the shade", "Séchage à plat à l'ombre.", "Secar extendido a la sombra.", "flatShade"], ["4) Ironing", "Do not iron", "Ne pas repasser.", "No planchar.", "ironX"], ["4) Ironing", "Iron at low temperature (max 110°C)", "Repasser max. 110°C.", "Planchar máx. 110°C.", "iron1"], ["4) Ironing", "Cool Iron from inside if needed", "Repasser au froid de l'intérieur si nécessaire.", "Planchar frío desde el interior si es necesario.", "iron1"], ["4) Ironing", "Iron at medium temperature (max 150°C)", "Repasser max. 150°C.", "Planchar máx. 150°C.", "iron2"], ["4) Ironing", "Iron at high temperature (max 200°C)", "Repasser max. 200°C.", "Planchar máx. 200°C.", "iron3"], ["5) Professional Care", "Do not dry clean", "Pas d'entretien professionnel à sec.", "No limpiar en seco.", "dcX"], ["5) Professional Care", "Professional dry cleaning mild process", "Entretien à sec cycle modéré.", "Limpieza en seco, proceso suave.", "dc"], ["5) Professional Care", "Professional dry cleaning normal process", "Entretien à sec cycle normal.", "Limpieza en seco, proceso normal.", "dc"], ["5) Professional Care", "Do not wet clean", "Pas d'entretien professionnel à l'eau.", "No limpieza profesional mojado.", "wetX"]];
+const SYMBOL_CHART = [["wash30", "Wash 30°C"], ["wash40", "Wash 40°C"], ["washHand", "Hand wash"], ["washX", "Do not wash"], ["bleachX", "Do not bleach"], ["bleachOxygen", "Non-chlorine bleach only"], ["bleachAny", "Any bleach allowed"], ["dryLow", "Tumble dry low (60°C)"], ["dryMed", "Tumble dry normal (80°C)"], ["dryX", "Do not tumble dry"], ["iron1", "Iron low (110°C)"], ["iron2", "Iron medium (150°C)"], ["iron3", "Iron high (200°C)"], ["ironX", "Do not iron"], ["dc", "Dry clean"], ["dcX", "Do not dry clean"]];
+
+$('qFabric').addEventListener('input',function(){
+  const q=this.value.trim().toUpperCase();
+  if(!q){$('qFabricResult').innerHTML='Type to search...';return}
+  const f=FABRIC_LOOKUP.filter(r=>r[0].toUpperCase().includes(q));
+  if(!f.length){$('qFabricResult').innerHTML='<span style="color:#86909c;">Not found. Try: COTTON, SPANDEX, POLYESTER, NYLON, RAYON, WOOL, SILK...</span>';return}
+  $('qFabricResult').innerHTML=f.map(r=>'<b>'+r[0]+'</b><br>FR: '+r[1]+'<br>ES: '+r[2]).join('<hr style="border:none;border-top:1px solid #e5e6eb;margin:6px 0">');
+});
+
+let lastCat='';
+CARE_LOOKUP.forEach(r=>{
+  if(r[0]!==lastCat){lastCat=r[0];const og=document.createElement('optgroup');og.label=r[0];$('qCare').appendChild(og);}
+  const o=document.createElement('option');o.value=r[1];o.textContent=r[1];$('qCare').appendChild(o);
+});
+$('qCare').addEventListener('change',function(){
+  const f=CARE_LOOKUP.find(r=>r[1]===this.value);
+  if(!f){$('qCareResult').innerHTML='Select to view...';return}
+  $('qCareResult').innerHTML='<div style="margin-bottom:6px;width:36px;">'+(SYM[f[4]]||'')+'</div><b>EN:</b> '+f[1]+'<br><b>FR:</b> '+f[2]+'<br><b>ES:</b> '+f[3];
+});
+$('qSymbolChart').innerHTML=SYMBOL_CHART.map(([k,l])=>'<div class="chart-item">'+(SYM[k]||'')+'<span>'+l+'</span></div>').join('');
+document.querySelectorAll('input,select,textarea').forEach(e=>{e.addEventListener('input',render);e.addEventListener('change',render)});
+render();
+</script>
+</body>
+</html>
