@@ -1,0 +1,417 @@
+{
+"K3": [
+"Do not wash",
+"Lavage interdit.",
+"No lavar"
+],
+"K4": [
+"Hand wash",
+"Lavage à la main.",
+"Lavar a mano"
+],
+"K5": [
+"Machine wash cold with like colors. Gentle cycle.",
+"Lavage en machine max. 30°C. Laver avec des couleurs similaires. Cycle très délicat.",
+"Temperatura máxima de lavado 30°C. Lavar con colores similares. Proceso muy suave."
+],
+"K6": [
+"Mild Process",
+"Lavage en machine max. 30°C , cycle délicat.",
+"Temperatura máxima de lavado 30°C. Proceso suave"
+],
+"K7": [
+"Normal Process",
+"Lavage en machine max. 30°C , cycle normal.",
+"Temperatura máxima de lavado 30°C. Proceso normal."
+],
+"K8": [
+"Very mild process",
+"Lavage en machine max. 40°C , cycle très délicat.",
+"Temperatura máxima de lavado 40°C. Proceso muy suave"
+],
+"K9": [
+"Mild Process",
+"Lavage en machine max. 40°C , cycle délicat.",
+"Temperatura máxima de lavado 40°C. Proceso suave"
+],
+"K10": [
+"Normal Process",
+"Lavage en machine max. 40°C , cycle normal.",
+"Temperatura máxima de lavado 40°C. Proceso normal"
+],
+"K11": [
+"Mild Process",
+"Lavage en machine max. 50°C , cycle délicat.",
+"Temperatura máxima de lavado 50°C. Proceso suave"
+],
+"K12": [
+"Normal Process",
+"Lavage en machine max. 50°C , cycle normal.",
+"Temperatura máxima de lavado 50°C. Proceso normal"
+],
+"K13": [
+"Mild Process",
+"Lavage en machine max. 60°C , cycle délicat.",
+"Temperatura máxima de lavado 60°C. Proceso suave"
+],
+"K14": [
+"Normal Process",
+"Lavage en machine max. 60°C , cycle normal",
+"Temperatura máxima de lavado 60°C. Proceso normal"
+],
+"K15": [
+"Normal Process",
+"Lavage en machine max. 70°C , cycle normal",
+"Temperatura máxima de lavado 70°C. Proceso normal"
+],
+"K16": [
+"Normal Process",
+"Lavage en machine max. 95°C , cycle normal.",
+"Temperatura máxima de lavado 95°C. Proceso normal"
+],
+"K17": [
+"Wash with like colors",
+"Laver avec des couleurs similaires.",
+"Lavar con colores similares"
+],
+"K18": [
+"Do not use fabric softener",
+"Ne pas utiliser d'assouplissant.",
+"No usar suavizante"
+],
+"K19": [
+"Exclusive of trims",
+"Sauf décorations.",
+"Decoración Excluida"
+],
+"K20": [
+"Wash before first use",
+"Laver avant la première utilisation.",
+"Lavar antes del pimer uso"
+],
+"K21": [
+"DO NOT IRON ON DECORATION",
+"Ne pas repasser les décorations",
+""
+],
+"K22": [
+"KEEP AWAY FROM FIRE",
+"Tenir éloigné du feu",
+""
+],
+"K23": [
+"FABRIC CLASS A-EN 14878",
+"étoffe de classe A - EN 14878",
+""
+],
+"K24": [
+"/",
+"Conforme aux exigences du décret n° 2000-164 du 23 février 2000",
+"/"
+],
+"K25": [
+"Turn the clothes inside out",
+"Retourner les vêtements à l'envers",
+"Voltear la ropa del revés"
+],
+"P3": [
+"Do not bleach.",
+"Pas de blanchiment.",
+"No usar lejía"
+],
+"P4": [
+"Only Oxygen / non-chlorine bleach allowed",
+"Produits de blanchiment oxygénés uniquement.",
+"Solo blanqueador oxigenado / sin cloro permitido"
+],
+"P5": [
+"Any bleaching agent allowed",
+"Tous types de blanchiment autorisés.",
+"Cualquier agente blanqueador permitido"
+],
+"P7": [
+"Do not tumble dry",
+"Pas de séchage en tambour.",
+"No usar secadora"
+],
+"P8": [
+"Tumble dry low temperature",
+"Séchage en tambour autorisé, température modérée 60°C.",
+"Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C"
+],
+"P9": [
+"Tumble dry normal temperature",
+"Séchage en tambour autorisé, température normale 80°C.",
+"Posible uso de secadora a temperatura normal, máxima temperatura de escape 80°C"
+],
+"P11": [
+"Line drying",
+"",
+""
+],
+"P12": [
+"Drip line drying",
+"Séchage sur fil sans essorage.",
+"Secar colgado por goteo"
+],
+"P13": [
+"Flat drying",
+"Séchage à plat.",
+"Secar extendido"
+],
+"P14": [
+"Drip flat drying",
+"Séchage à plat sans essorage.",
+"Secado plano por goteo"
+],
+"P15": [
+"Line drying in shade",
+"Séchage sur fil à l'ombre.",
+"Secar colgado a la sombra"
+],
+"P16": [
+"Drip line drying in shade",
+"Séchage sur fil sans essorage à l'ombre.",
+"secado línea de goteo en la sombra"
+],
+"P17": [
+"Flat drying in the shade",
+"Séchage à plat à l'ombre.",
+"Secar extendido a la sombra"
+],
+"P18": [
+"Drip flat drying in the shade",
+"Séchage à plat sans essorage à l'ombre.",
+"Secado plano por goteo a la sombra"
+],
+"U3": [
+"Do not iron",
+"Ne pas repasser.",
+"No planchar"
+],
+"U4": [
+"Iron at low temperature (maximum 110°C)",
+"Repasser à une température maximale de 110°C.",
+"Planchar máximo a temperatura de 110°C. (only if the manufacturer points out \" without steam. Steam ironing may cause irreversible damage please add \" Sin vapor. La plancha de vapor puede causar daños irreversibles\""
+],
+"U5": [
+"Cool Iron From inside If Needed",
+"Repasser au froid de l’intérieur si nécessaire.",
+"Hierro frío desde el interior si es necesario"
+],
+"U6": [
+"Iron at medium temperature (maximum 150°C)",
+"Repasser à une température maximale de 150°C.",
+"Planchar máximo a temperatura de 150°C"
+],
+"U7": [
+"Iron at high temperature (maximum 200°C)",
+"Repasser à une température maximale de 200°C.",
+"Planchar máximo a temperatura de 200°C"
+],
+"U9": [
+"Do not dry clean",
+"Pas d'entretien professionnel à sec.",
+"No limpiar en seco"
+],
+"U10": [
+"Professional dry cleaning mild process",
+"Entretien professionnel à sec cycle modéré.",
+"Limpieza profesional en seco en hidrocarburos (temperatura de destilación entre 150°C y 210°C, punto de inflamación entre 38°C y 70°C). Proceso suave"
+],
+"U11": [
+"Professional dry cleaning normal process",
+"Entretien professionnel à sec cycle normal.",
+"Limpieza profesional en seco en hidrocarburos (temperatura de destilación entre 150°C y 210°C, punto de inflamación entre 38°C y 70°C). Proceso normal"
+],
+"U12": [
+"Professional dry cleaning mild process",
+"Entretien professionnel à sec cycle modéré.",
+"Limpieza profesional en seco en tetracloroetileno y todos los solventes listados para el símbolo F. Proceso suave"
+],
+"U13": [
+"Professional dry cleaning normal process",
+"Entretien professionnel à sec cycle normal.",
+"Limpieza profesional en seco en tetracloroetileno y todos los solventes listados para el símbolo F. Proceso normal"
+],
+"U15": [
+"Do not wet clean",
+"Pas d'entretien professionnel à l'eau.",
+"No limpieza profesional mojado"
+],
+"U16": [
+"Professional wet cleaning gentle process",
+"Entretien professionnel à l'eau cycle très modéré.",
+"Limpieza profesional mojado. Proceso muy suave"
+],
+"U17": [
+"Professional wet cleaning mild process",
+"Entretien professionnel à l'eau cycle modéré.",
+"Limpieza profesional en mojado. Proceso suave"
+],
+"U18": [
+"Professional wet cleaning normal process",
+"Entretien professionnel à l'eau cycle normal.",
+"Limpieza profesional en mojado. Proceso normal"
+],
+"brief!D3": [
+"95%Cotton 5%Spandex",
+"95%Coton 5%Élasthanne",
+"95%Algodón 5% Elastano"
+],
+"brief!D5": [
+"Machine wash cold separately",
+"Laver à la machine à l’eau froide séparément",
+"Temperatura máxima de lavado 30°C por separado"
+],
+"brief!D6": [
+"Do not bleach",
+"Pas de blanchiment",
+"No usar lejía"
+],
+"brief!D7": [
+"Tumble dry low",
+"Séchage en tambour autorisé, température modérée 60°C",
+"Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C"
+],
+"brief!D8": [
+"Cool iron inside if needed",
+"Repasser à une température maximale de 110°C",
+"Planchar máximo a temperatura de 110°C"
+],
+"brief!D9": [
+"Do not dry clean",
+"Pas d'entretien professionnel à sec",
+"No limpiar en seco"
+],
+"brief!D11": [
+"Machine wash cold with like colors. Gentle cycle.",
+"Lavage en machine max. 30°C. Laver avec des couleurs similaires. Cycle très délicat.",
+"Temperatura máxima de lavado 30°C. Lavar con colores similares. Proceso muy suave."
+],
+"brief!D13": [
+"Only non-chlorine bleach when needed.",
+"Produits de blanchiment oxygénés uniquement.",
+"Solo blanqueador oxigenado / sin cloro permitido."
+],
+"brief!D14": [
+"Tumble dry low.",
+"Séchage en tambour autorisé, température modérée 60°C.",
+"Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C."
+],
+"brief!D15": [
+"Cool iron inside if needed.",
+"Repasser à une température maximale de 110°C.",
+"Planchar máximo a temperatura de 110°C."
+],
+"brief!D16": [
+"Do not dry clean.",
+"Pas d'entretien professionnel à sec.",
+"No limpiar en seco."
+],
+"brief!D18": [
+"Made in China",
+"Fabriqué en Chine",
+"Hecho en china"
+],
+"brief!D20": [
+"Shell",
+"Matière principale",
+"Cuerpo"
+],
+"brief!D21": [
+"Lining",
+"Doublure",
+"Forro"
+],
+"brief!D22": [
+"Filling",
+"Garnissage",
+"Relleno"
+],
+"brief!D25": [
+"Do not wash",
+"Lavage interdit.",
+"No lavar"
+],
+"brief!D26": [
+"Do not bleach.",
+"Pas de blanchiment.",
+"No usar lejía"
+],
+"brief!D27": [
+"Do not tumble dry",
+"Pas de séchage en tambour.",
+"No usar secadora"
+],
+"brief!D28": [
+"Iron at low temperature (maximum 110°C)",
+"Repasser à une température maximale de 110°C.",
+"Planchar máximo a temperatura de 110°C. (only if the manufacturer points out \" without steam. Steam ironing may cause irreversible damage please add \" Sin vapor. La plancha de vapor puede causar daños irreversibles\""
+],
+"brief!D29": [
+"Professional dry cleaning normal process",
+"Entretien professionnel à sec cycle normal.",
+"Limpieza profesional en seco en tetracloroetileno y todos los solventes listados para el símbolo F. Proceso normal"
+],
+"brief!D30": [
+"lurex",
+"lurex",
+"lúrex"
+],
+"brief!D31": [
+"mesh",
+"maille",
+"Malla"
+],
+"brief!D32": [
+"lace",
+"",
+""
+],
+"brief!D33": [
+"Exclusive of Decoration",
+"Décoration non incluse",
+"Decoración no incluida"
+],
+"brief!D37": [
+"Do Not Wash,",
+"Lavage interdit.",
+"No lavar."
+],
+"brief!D38": [
+"Spot Clean Only.",
+"Nettoyer uniquement les taches localement.",
+"Limpiar solo las manchas localmente."
+],
+"brief!D39": [
+"Do Not Bleach.",
+"Pas de blanchiment.",
+"No usar lejía."
+],
+"brief!D40": [
+"Do Not Use Fabric Softener.",
+"Ne pas utiliser d'adoucissant.",
+"No usar suavizante de telas."
+],
+"brief!D41": [
+"Do Not Tumble Dry.",
+"Pas de séchage en tambour.",
+"No usar secadora."
+],
+"brief!D42": [
+"Line Drying In Shade.",
+"Séchage sur fil à l'ombre.",
+"Secar colgado a la sombra."
+],
+"brief!D43": [
+"Do Not Iron.",
+"Ne pas repasser.",
+"No planchar."
+],
+"brief!D44": [
+"Do Not Dry Clean",
+"Pas d'entretien professionnel à sec.",
+"No limpiar en seco"
+]
+}

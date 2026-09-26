@@ -17,75 +17,37 @@ import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXCEL = json.load(open(os.path.join(HERE, 'data', 'excel_lists.json'), encoding='utf-8'))
 
-# ---------------- 洗护选项（EN 为标签文字；FR/ES 取自 Excel） ----------------
-# (符号key, EN, FR, ES)
+# ---------------- 洗护选项：文字逐字取自 S27 HOUSE CARE LABEL RULE（data/excel_care.json，键为单元格） ----------------
+CELL = json.load(open(os.path.join(HERE, 'data', 'excel_care.json'), encoding='utf-8'))
+def X(key, cell, label=None, en=None):
+    """(符号key, EN, FR, ES, 下拉框显示名)；label 只用于下拉框区分同名选项，不印在标签上"""
+    e, f, sp = CELL[cell]
+    sp = sp.split(' (only if')[0].strip()   # U4 西语单元格里给厂家的备注，不印
+    if sp == '/': sp = ''
+    e = en or e
+    return (key, e, f, sp, label or e)
+
 WASH = [
-    ("washX", "Do not wash", "Lavage interdit.", "No lavar."),
-    ("washHand", "Hand wash", "Lavage à la main.", "Lavar a mano."),
-    ("w30vm", "Machine wash cold with like colors. Gentle cycle.", "Lavage en machine max. 30°C. Laver avec des couleurs similaires. Cycle très délicat.", "Temperatura máxima de lavado 30°C. Lavar con colores similares. Proceso muy suave."),
-    ("w30m", "Machine wash max. 30°C, mild process", "Lavage en machine max. 30°C, cycle délicat.", "Temperatura máxima de lavado 30°C. Proceso suave."),
-    ("w30n", "Machine wash max. 30°C, normal process", "Lavage en machine max. 30°C, cycle normal.", "Temperatura máxima de lavado 30°C. Proceso normal."),
-    ("w40vm", "Machine wash max. 40°C, very mild process", "Lavage en machine max. 40°C, cycle très délicat.", "Temperatura máxima de lavado 40°C. Proceso muy suave."),
-    ("w40m", "Machine wash max. 40°C, mild process", "Lavage en machine max. 40°C, cycle délicat.", "Temperatura máxima de lavado 40°C. Proceso suave."),
-    ("w40n", "Machine wash max. 40°C, normal process", "Lavage en machine max. 40°C, cycle normal.", "Temperatura máxima de lavado 40°C. Proceso normal."),
-    ("w50m", "Machine wash max. 50°C, mild process", "Lavage en machine max. 50°C, cycle délicat.", "Temperatura máxima de lavado 50°C. Proceso suave."),
-    ("w50n", "Machine wash max. 50°C, normal process", "Lavage en machine max. 50°C, cycle normal.", "Temperatura máxima de lavado 50°C. Proceso normal."),
-    ("w60m", "Machine wash max. 60°C, mild process", "Lavage en machine max. 60°C, cycle délicat.", "Temperatura máxima de lavado 60°C. Proceso suave."),
-    ("w60n", "Machine wash max. 60°C, normal process", "Lavage en machine max. 60°C, cycle normal.", "Temperatura máxima de lavado 60°C. Proceso normal."),
-    ("w70n", "Machine wash max. 70°C, normal process", "Lavage en machine max. 70°C, cycle normal.", "Temperatura máxima de lavado 70°C. Proceso normal."),
-    ("w95n", "Machine wash max. 95°C, normal process", "Lavage en machine max. 95°C, cycle normal.", "Temperatura máxima de lavado 95°C. Proceso normal."),
+    X("washX", "K3"), X("washHand", "K4"),
+    # 0921 批复 / 统一要求：标签印 MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE（Excel K5 去掉句号）
+    X("w30vm", "K5", en="Machine wash cold with like colors gentle cycle"),
+    X("w30m", "K6", "Mild Process (30°C)"), X("w30n", "K7", "Normal Process (30°C)"),
+    X("w40vm", "K8", "Very mild process (40°C)"), X("w40m", "K9", "Mild Process (40°C)"), X("w40n", "K10", "Normal Process (40°C)"),
+    X("w50m", "K11", "Mild Process (50°C)"), X("w50n", "K12", "Normal Process (50°C)"),
+    X("w60m", "K13", "Mild Process (60°C)"), X("w60n", "K14", "Normal Process (60°C)"),
+    X("w70n", "K15", "Normal Process (70°C)"), X("w95n", "K16", "Normal Process (95°C)"),
 ]
-BLEACH = [
-    ("bleachX", "Do not bleach.", "Pas de blanchiment.", "No usar lejía."),
-    ("bleachNC", "Only non-chlorine bleach when needed.", "Produits de blanchiment oxygénés uniquement.", "Solo blanqueador oxigenado / sin cloro permitido."),
-    ("bleachNC", "Only oxygen / non-chlorine bleach allowed", "Produits de blanchiment oxygénés uniquement.", "Solo blanqueador oxigenado / sin cloro permitido."),
-    ("bleachAny", "Any bleaching agent allowed", "Tous types de blanchiment autorisés.", "Cualquier agente blanqueador permitido."),
-]
-TUMBLE = [
-    ("dryX", "Do not tumble dry", "Pas de séchage en tambour.", "No usar secadora."),
-    ("dry1", "Tumble dry low temperature", "Séchage en tambour autorisé, température modérée 60°C.", "Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C."),
-    ("dry2", "Tumble dry normal temperature", "Séchage en tambour autorisé, température normale 80°C.", "Posible uso de secadora a temperatura normal, máxima temperatura de escape 80°C."),
-]
-NATURAL = [
-    ("", "(none)", "", ""),
-    ("line", "Line drying", "Séchage sur fil.", "Secar tendido."),
-    ("dripLine", "Drip line drying", "Séchage sur fil sans essorage.", "Secar colgado por goteo."),
-    ("flat", "Flat drying", "Séchage à plat.", "Secar extendido."),
-    ("dripFlat", "Drip flat drying", "Séchage à plat sans essorage.", "Secado plano por goteo."),
-    ("lineShade", "Line drying in shade", "Séchage sur fil à l'ombre.", "Secar colgado a la sombra."),
-    ("dripLineShade", "Drip line drying in shade", "Séchage sur fil sans essorage à l'ombre.", "Secado línea de goteo en la sombra."),
-    ("flatShade", "Flat drying in the shade", "Séchage à plat à l'ombre.", "Secar extendido a la sombra."),
-    ("dripFlatShade", "Drip flat drying in the shade", "Séchage à plat sans essorage à l'ombre.", "Secado plano por goteo a la sombra."),
-]
-IRON = [
-    ("ironX", "Do not iron", "Ne pas repasser.", "No planchar."),
-    ("iron1", "Cool iron from inside if needed", "Repasser au froid de l’intérieur si nécessaire.", "Hierro frío desde el interior si es necesario."),
-    ("iron1", "Iron at low temperature (maximum 110°C)", "Repasser à une température maximale de 110°C.", "Planchar máximo a temperatura de 110°C."),
-    ("iron2", "Iron at medium temperature (maximum 150°C)", "Repasser à une température maximale de 150°C.", "Planchar máximo a temperatura de 150°C."),
-    ("iron3", "Iron at high temperature (maximum 200°C)", "Repasser à une température maximale de 200°C.", "Planchar máximo a temperatura de 200°C."),
-]
-DRYCLEAN = [
-    ("dcX", "Do not dry clean", "Pas d'entretien professionnel à sec.", "No limpiar en seco."),
-    ("dcP1", "Professional dry cleaning mild process", "Entretien professionnel à sec cycle modéré.", "Limpieza profesional en seco en tetracloroetileno y todos los solventes listados para el símbolo F. Proceso suave."),
-    ("dcP", "Professional dry cleaning normal process", "Entretien professionnel à sec cycle normal.", "Limpieza profesional en seco en tetracloroetileno y todos los solventes listados para el símbolo F. Proceso normal."),
-    ("dcF1", "Professional dry cleaning mild process", "Entretien professionnel à sec cycle modéré.", "Limpieza profesional en seco en hidrocarburos (temperatura de destilación entre 150°C y 210°C, punto de inflamación entre 38°C y 70°C). Proceso suave."),
-    ("dcF", "Professional dry cleaning normal process", "Entretien professionnel à sec cycle normal.", "Limpieza profesional en seco en hidrocarburos (temperatura de destilación entre 150°C y 210°C, punto de inflamación entre 38°C y 70°C). Proceso normal."),
-]
-WET = [
-    ("", "(none)", "", ""),
-    ("wetX", "Do not wet clean", "Pas d'entretien professionnel à l'eau.", "No limpieza profesional mojado."),
-    ("wet2", "Professional wet cleaning gentle process", "Entretien professionnel à l'eau cycle très modéré.", "Limpieza profesional mojado. Proceso muy suave."),
-    ("wet1", "Professional wet cleaning mild process", "Entretien professionnel à l'eau cycle modéré.", "Limpieza profesional en mojado. Proceso suave."),
-    ("wet", "Professional wet cleaning normal process", "Entretien professionnel à l'eau cycle normal.", "Limpieza profesional en mojado. Proceso normal."),
-]
-EXTRAS = [  # Excel 中无符号 (N/A) 的附加语句
-    ("", "Wash with like colors", "Laver avec des couleurs similaires.", "Lavar con colores similares."),
-    ("", "Do not use fabric softener", "Ne pas utiliser d'assouplissant.", "No usar suavizante."),
-    ("", "Wash before first use", "Laver avant la première utilisation.", "Lavar antes del primer uso."),
-    ("", "Turn the clothes inside out", "Retourner les vêtements à l'envers.", "Voltear la ropa del revés."),
-]
-# 下拉框里区分同名选项
-DC_LABEL = {"dcP1": " (P)", "dcP": " (P)", "dcF1": " (F)", "dcF": " (F)"}
+BLEACH = [X("bleachX", "P3"), X("bleachNC", "brief!D13"), X("bleachNC", "P4"), X("bleachAny", "P5")]
+TUMBLE = [X("dryX", "P7"), X("dry1", "P8"), X("dry2", "P9")]
+NONE = ("", "(none)", "", "", "(none)")
+NATURAL = [NONE] + [X(k, c) for k, c in (("line", "P11"), ("dripLine", "P12"), ("flat", "P13"), ("dripFlat", "P14"),
+                                          ("lineShade", "P15"), ("dripLineShade", "P16"), ("flatShade", "P17"), ("dripFlatShade", "P18"))]
+IRON = [X("ironX", "U3"), X("iron1", "U5"), X("iron1", "U4"), X("iron2", "U6"), X("iron3", "U7")]
+DRYCLEAN = [X("dcX", "U9"),
+            X("dcP1", "U12", "Professional dry cleaning mild process (P)"), X("dcP", "U13", "Professional dry cleaning normal process (P)"),
+            X("dcF1", "U10", "Professional dry cleaning mild process (F)"), X("dcF", "U11", "Professional dry cleaning normal process (F)")]
+WET = [NONE, X("wetX", "U15"), X("wet2", "U16"), X("wet1", "U17"), X("wet", "U18")]
+EXTRAS = [X("", c) for c in ("K17", "K18", "K19", "K20", "K21", "K22", "K23", "K25", "brief!D38")]
 
 # ---------------- 成分翻译（Excel + 已批复 ANDY & EVAN 模板用词） ----------------
 FABRIC_EXTRA = [
@@ -114,19 +76,19 @@ FABRIC += [["Vest", "Gilet", "Chaleco"], ["Bowtie", "Nœud papillon", "Corbata d
 COUNTRY = [[clean(a), clean(b), clean(c)] for a, b, c in EXCEL['country']]
 
 SYMBOL_CHART = [
-    ("1) Washing", [(k, en) for k, en, *_ in WASH]),
+    ("1) Washing", [(r[0], r[4]) for r in WASH]),
     ("2) Bleaching", [("bleachX", "Do not bleach"), ("bleachNC", "Only oxygen / non-chlorine bleach"), ("bleachAny", "Any bleaching agent allowed")]),
     ("3.1) Tumble drying", [(k, en) for k, en, *_ in TUMBLE]),
-    ("3.2) Natural drying", [(k, en) for k, en, *_ in NATURAL if k]),
+    ("3.2) Natural drying", [(r[0], r[4]) for r in NATURAL if r[0]]),
     ("4) Ironing", [("ironX", "Do not iron"), ("iron1", "Low (max 110°C) / cool iron"), ("iron2", "Medium (max 150°C)"), ("iron3", "High (max 200°C)")]),
     ("5.1) Professional dry care", [("dcX", "Do not dry clean"), ("dcP1", "Dry clean P, mild"), ("dcP", "Dry clean P, normal"), ("dcF1", "Dry clean F, mild"), ("dcF", "Dry clean F, normal")]),
-    ("5.2) Professional wet care", [(k, en) for k, en, *_ in WET if k]),
+    ("5.2) Professional wet care", [(r[0], r[4]) for r in WET if r[0]]),
 ]
 
-def options(rows, selected, labels=None):
+def options(rows, selected):
     out = []
-    for i, (k, en, *_r) in enumerate(rows):
-        lab = en + ((labels or {}).get(k, ''))
+    for i, r in enumerate(rows):
+        lab = r[4]
         out.append('<option value="%d"%s>%s</option>' % (i, ' selected' if i == selected else '', lab.replace('&', '&amp;')))
     return '\n        '.join(out)
 
@@ -352,7 +314,7 @@ body.batch-mode .batch-only{display:inline-block}
       </select>
       <label class="field">5.1) Professional dry care</label>
       <select id="dryclean">
-        ''' + options(DRYCLEAN, 0, DC_LABEL) + '''
+        ''' + options(DRYCLEAN, 0) + '''
       </select>
       <label class="field">5.2) Professional wet care</label>
       <select id="wet">
@@ -440,7 +402,7 @@ function pro(letter,nbar){const cy=[20,17.5,15.5][nbar],r=[12.5,11.5,10][nbar];r
 function SYM(k){
   if(!k)return '';
   const m=k.match(/^w(\d+)(vm|m|n)$/);
-  if(m){const t=+m[1],nb={vm:2,m:1,n:0}[m[2]],nd={30:1,40:2,50:3,60:4}[t]||0;return svg(TUB+tubTxt(t+'C')+dots(nd,26.3,20,4.4)+bars(nb,34.3,7.5,32.5))}
+  if(m){const t=+m[1],nb={vm:2,m:1,n:0}[m[2]],nd={30:1,40:2,50:3,60:4}[t]||0;return svg(TUB+tubTxt(t>=70?String(t):t+'C')+dots(nd,26.3,20,4.4)+bars(nb,34.3,7.5,32.5))}
   switch(k){
     case 'washX':return svg(TUB+cross(2,4,38,35));
     case 'washHand':return svg(TUB+'<path d="M15 21 C14 16 17 12.5 21.5 11 L30.5 3 L33.5 6 L27.5 11.5 L32.5 11 L32.8 14.2 L26 15.6 C25 20.5 19.5 23.5 15 21 Z" fill="#231f20" stroke="none"/>');
@@ -489,6 +451,9 @@ function curTpl(){return $('templateOverride').value==='auto'?detectTemplate($('
 // 洗护选择 sel = {wash:i, bleach:i, ..., extras:[i]}
 function formSel(){const o={};CATS.forEach(c=>o[c]=+$(c).value);o.extras=[...document.querySelectorAll('#extras input:checked')].map(c=>+c.value);return o}
 function careOf(sel){const r=CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[1]!=='(none)');(sel.extras||[]).forEach(i=>r.push(CARE.extras[i]));return r}
+const enL=x=>x[1].replace(/\.\s*$/,'');
+// ANDY & EVAN 需要法语/西语；Excel 中缺译文的条目需提示
+function missingFrEs(care){return care.filter(x=>!x[2]||!x[3]).map(x=>x[1])}
 function symsOf(sel){return CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[0]).map(x=>SYM(x[0])).join('')}
 
 // 成分翻译：最长匹配优先，保留百分比与标点
@@ -532,7 +497,7 @@ function labelHTML(d){
     h+='<div class="sec top"><div class="comp-b">'+esc(titleCase(d.comp))+'</div><div class="sp"></div>';
     if(d.decor)h+='<div class="decor-b">Exclusive<br>of Decoration</div><div class="gap" style="height:4mm"></div>';
     h+='<div class="origin-b nw">'+esc(originEN(d.country))+'</div></div><div class="dash-line"></div>';
-    h+='<div class="sec bot"><div class="care-b">'+care.map(x=>esc(x[1])).join('\n')+'</div><div class="gap" style="height:1.5mm"></div><div class="style-b'+(d.styleLine.includes('<br>')?'':' nw')+'">Style # '+d.styleLine+'</div><div class="gap" style="height:2.2mm"></div><div class="rn-ys nw">RN'+rn+'<br>'+track+'</div></div>';
+    h+='<div class="sec bot"><div class="care-b">'+care.map(x=>esc(enL(x))).join('\n')+'</div><div class="gap" style="height:1.5mm"></div><div class="style-b'+(d.styleLine.includes('<br>')?'':' nw')+'">Style # '+d.styleLine+'</div><div class="gap" style="height:2.2mm"></div><div class="rn-ys nw">RN'+rn+'<br>'+track+'</div></div>';
     h+='<div class="dash-line"></div>'+tail+'</div>'+belowDiv+'</div>';
   }else if(d.tpl==='c'){
     const fr=translateComp(d.comp,1),es=translateComp(d.comp,2);
@@ -555,7 +520,7 @@ function labelHTML(d){
     // SH / ADV / CC：数量印在下折边内（与 Dillards 模板一致）；合并时款号列表放在标签下方
     h+='<div class="label-wrap"><div class="care-label tpl-a" style="'+box+'">'+tail+'<div class="dash-line"></div>';
     h+='<div class="sec top"><div class="sx">'+esc(d.comp.toUpperCase())+'</div><div class="sp"></div><div class="meta nw"><div class="origin">'+esc(originEN(d.country).toUpperCase())+'</div><div>RN#'+rn+'</div><div>'+track+'</div></div></div><div class="dash-line"></div>';
-    h+='<div class="sec bot"><div class="sx">'+care.map(x=>esc(x[1].toUpperCase())).join('\n')+'</div><div class="sp"></div>';
+    h+='<div class="sec bot"><div class="sx">'+care.map(x=>esc(enL(x).toUpperCase())).join('\n')+'</div><div class="sp"></div>';
     if(d.tpl==='a_sym')h+='<div class="symbols">'+d.syms+'</div><div class="gap" style="height:3.55mm"></div>';
     h+='<div class="sx'+(d.styleLine.includes('<br>')?'':' nw')+'">STYLE '+d.styleLine+'</div></div><div class="dash-line"></div>';
     h+='<div class="tail" style="height:'+d.fm+'mm">'+(d.below?'':qtyDiv)+'</div></div>'+(d.below?belowDiv:'')+'</div>';
@@ -575,7 +540,7 @@ function render(){
     track:$('trackOverride').value.trim()||trackCode(brand), decor:$('decor').checked, styleLine:esc($('styleNo').value.trim()),
     qtyText:qty?'数量：'+esc(qty):'', below:tpl==='c'&&qty?esc($('styleNo').value.trim()):''};
   const warns=[];
-  if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)warns.push('No FR/ES translation in the S27 rule for: '+[...new Set(m)].join(', '))}
+  if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)warns.push('No FR/ES translation in the S27 rule for: '+[...new Set(m)].join(', '));const mc=missingFrEs(d.care);if(mc.length)warns.push('S27 rule has no FR/ES text for: '+mc.join(', '))}
   $('sheet').innerHTML=labelHTML(d).repeat(parseInt($('copies').value));
   $('sheet').classList.toggle('page-ae',tpl==='c');
   const r=fitAll($('sheet'));
@@ -604,13 +569,13 @@ function resetForm(){$('composition').value='';$('styleNo').value='';$('qty').va
 // =====================================================================
 // 批量：上传 Excel → 按「品牌 + 性别 + 成分 + 洗护 + 产地」合并 → 结果表 + 标签
 // =====================================================================
-// 品牌默认洗护（取自已批复模板 + 0921 批复），可在页面上用当前设置覆盖（保存在本机浏览器）
+// 品牌默认洗护：全部统一为 MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE + TUMBLE DRY LOW TEMPERATURE（EdgeHill 漂白按其模板），可在页面上用当前设置覆盖（保存在本机浏览器）
 const PRESET_BUILTIN={
   S27CC:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
   S27SH:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
   S27AD:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
   S27EC:{wash:2,bleach:1,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
-  S27AE:{wash:2,bleach:0,tumble:2,natural:0,iron:1,dryclean:0,wet:0,extras:[]}
+  S27AE:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]}
 };
 function loadPresets(){let p={};try{p=JSON.parse(localStorage.getItem('careLabelPresets')||'{}')}catch(e){}return Object.assign({},PRESET_BUILTIN,p)}
 function savePreset(brand,sel){let p={};try{p=JSON.parse(localStorage.getItem('careLabelPresets')||'{}')}catch(e){}p[brand]=sel;try{localStorage.setItem('careLabelPresets',JSON.stringify(p))}catch(e){}}
@@ -644,7 +609,8 @@ function brandFromText(v){
   return m[s]||'';
 }
 const nopt=s=>String(s||'').toLowerCase().replace(/[^a-z0-9°]/g,'');
-function matchCare(cat,text){const t=nopt(text);if(!t)return -1;return CARE[cat].findIndex(r=>nopt(r[1])===t)}
+// 先按下拉框名称（含温度 / P、F 区分）匹配，再按 Excel 原文匹配；原文对应多个选项时返回 -2
+function matchCare(cat,text){const t=nopt(text);if(!t)return -1;const L=CARE[cat].findIndex(r=>nopt(r[4])===t);if(L>=0)return L;const hits=CARE[cat].map((r,i)=>nopt(r[1])===t?i:-1).filter(i=>i>=0);return hits.length===1?hits[0]:(hits.length?-2:-1)}
 function matchCountry(text){const t=nopt(String(text||'').replace(/made\s*in/i,''));if(!t)return -1;return COUNTRY.findIndex(c=>nopt(c[0])===t)}
 function normCompKey(s){return String(s).toLowerCase().replace(/[\s,，;；.]/g,'')}
 // 百分比检查：按部位（Shell: / Lining: …）分段，每段合计应为 100%；没有部位名时整个成分合计 100%
@@ -675,10 +641,10 @@ function parseWorkbook(wb,fileName){
     if(qCol==null||qtyRaw===''||isNaN(qty))notes.push('数量为空或不是数字');
     if(!comp)notes.push('成分为空');
     const sel=Object.assign({},presets[brand]||PRESET_BUILTIN.S27SH);sel.extras=(sel.extras||[]).slice();
-    CATS.forEach(cat=>{if(c[cat]==null)return;const v=String(row[c[cat]]||'').trim();if(!v)return;const i=matchCare(cat,v);if(i<0)notes.push('洗护「'+v+'」不在 S27 规则中，已用品牌默认');else sel[cat]=i});
+    CATS.forEach(cat=>{if(c[cat]==null)return;const v=String(row[c[cat]]||'').trim();if(!v)return;const i=matchCare(cat,v);if(i===-2)notes.push('洗护「'+v+'」对应多个选项，请按「Care options」页写明（如温度或 P/F），已用品牌默认');else if(i<0)notes.push('洗护「'+v+'」不在 S27 规则中，已用品牌默认');else sel[cat]=i});
     let country=defCountry;if(c.origin!=null&&String(row[c.origin]).trim()){const i=matchCountry(row[c.origin]);if(i<0)notes.push('产地「'+row[c.origin]+'」不在 S27 国家表中，已用默认');else country=i}
     checkPct(comp).forEach(x=>notes.push('成分百分比不等于 100%：'+x));
-    if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)notes.push('无 FR/ES 翻译：'+[...new Set(m)].join(', '))}
+    if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)notes.push('无 FR/ES 翻译：'+[...new Set(m)].join(', '));const mc=missingFrEs(careOf(sel));if(mc.length)notes.push('S27 规则中缺少法语/西语：'+mc.join(', '))}
     items.push({row:r+1,style,comp,qty:isNaN(qty)?0:qty,gender:normGender(c.gender!=null?row[c.gender]:''),brand,tpl,sel,country,notes});
   }
   // 合并：同品牌 + 同性别 + 同成分 + 同洗护 + 同产地；标签上印款号的模板（SH/ADV/CC/EdgeHill）默认按款分开
@@ -737,9 +703,9 @@ function exportBatch(){
 }
 function downloadInputTemplate(){
   const head=['品牌 Brand','款号 Style','成分 Composition','性别 Gender','数量 Qty','产地 Origin','水洗 Washing','漂白 Bleaching','烘干 Tumble drying','自然晾干 Natural drying','熨烫 Ironing','干洗 Dry care','湿洗 Wet care'];
-  const ex=[['','F26G21683B-LBA','95% Cotton 5% Elastane','女童',400],['','F26G21684B-WHA','95% Cotton 5% Elastane','女童',1250],['','F26G31323A-WHA','95% Cotton 5% Elastane','男童',720],['','F64SW840B/J','100% Cotton','男童',3400],['','F64EH44024','30% Wool\n25% Nylon\n45% Acrylic','女童',2200,'','','Only non-chlorine bleach when needed.']];
+  const ex=[['','F26G21683B-LBA','95% Cotton 5% Elastane','女童',400],['','F26G21684B-WHA','95% Cotton 5% Elastane','女童',1250],['','F26G31323A-WHA','95% Cotton 5% Elastane','男童',720],['','F64SW840B/J','100% Cotton','男童',3400],['','F64EH44024','30% Wool\n25% Nylon\n45% Acrylic','女童',2200,'','','Only non-chlorine bleach when needed']];
   const opts=[['分类 Category','可填写的内容（英文，与 S27 规则一致）']];
-  [['水洗 Washing','wash'],['漂白 Bleaching','bleach'],['烘干 Tumble drying','tumble'],['自然晾干 Natural drying','natural'],['熨烫 Ironing','iron'],['干洗 Dry care','dryclean'],['湿洗 Wet care','wet']].forEach(([l,c])=>CARE[c].forEach(r=>{if(r[1]!=='(none)')opts.push([l,r[1]])}));
+  [['水洗 Washing','wash'],['漂白 Bleaching','bleach'],['烘干 Tumble drying','tumble'],['自然晾干 Natural drying','natural'],['熨烫 Ironing','iron'],['干洗 Dry care','dryclean'],['湿洗 Wet care','wet']].forEach(([l,c])=>CARE[c].forEach(r=>{if(r[1]!=='(none)')opts.push([l,r[4]])}));
   const note=[['说明'],['必填：款号、成分、数量。品牌可留空（按款号开头自动识别）。'],['性别填 男童 / 女童（或 Boys / Girls）。'],['洗护各列留空 = 使用该品牌的默认洗护；填写时请从「Care options」页复制原文。'],['合并规则：同品牌 + 同性别 + 同成分 + 同洗护 + 同产地 → 合并为一个标签，数量相加。']];
   const wb=XLSX.utils.book_new();const s=XLSX.utils.aoa_to_sheet([head,...ex]);s['!cols']=head.map((h,i)=>({wch:[14,18,30,10,8,10,34,34,26,26,32,30,30][i]}));
   XLSX.utils.book_append_sheet(wb,s,'Order 下单');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(opts),'Care options');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(note),'说明');
@@ -762,10 +728,9 @@ function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('pr
     if(!f.length){$('qFabricResult').innerHTML='<span style="color:#86909c;">Not found in the S27 rule.</span>';return}
     $('qFabricResult').innerHTML=f.map(r=>'<b>'+esc(r[0])+'</b><br>FR: '+esc(r[1])+'<br>ES: '+esc(r[2])).join('<hr style="border:none;border-top:1px solid #e5e6eb;margin:6px 0">');
   });
-  const DCL={dcP1:' (P)',dcP:' (P)',dcF1:' (F)',dcF:' (F)'};
   [['wash','1) Washing'],['bleach','2) Bleaching'],['tumble','3.1) Tumble drying'],['natural','3.2) Natural drying'],['iron','4) Ironing'],['dryclean','5.1) Professional dry care'],['wet','5.2) Professional wet care'],['extras','Additional (no symbol)']].forEach(([cat,lab])=>{
     const og=document.createElement('optgroup');og.label=lab;
-    CARE[cat].forEach((r,i)=>{if(r[1]==='(none)')return;const o=document.createElement('option');o.value=cat+':'+i;o.textContent=r[1]+(DCL[r[0]]||'');og.appendChild(o)});
+    CARE[cat].forEach((r,i)=>{if(r[1]==='(none)')return;const o=document.createElement('option');o.value=cat+':'+i;o.textContent=r[4];og.appendChild(o)});
     $('qCare').appendChild(og);
   });
   $('qCare').addEventListener('change',function(){
