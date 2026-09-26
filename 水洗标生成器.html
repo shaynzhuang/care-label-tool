@@ -6,6 +6,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23165dff'/%3E%3Cpath d='M18 26 L21 48 L43 48 L46 26 Z' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital@1&display=swap">
 <title>Care Label Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* 模板字体：优先用本机安装的原字体（与 Illustrator 模板一致），缺失时回退 */
 @font-face{font-family:TplCataneo;font-style:italic;src:local("Cataneo BT Light"),local("CataneoBT-Light"),local("Cataneo Lt BT"),local("Cataneo BT")}
@@ -97,6 +98,29 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c .gap1{flex:0 0 1.9mm}
 .tpl-c .gap2{flex:0 0 2.2mm}
 
+.btn.small{padding:5px 10px;font-size:12px;margin:6px 6px 0 0}
+.btn-row{display:flex;flex-wrap:wrap}
+.batch-box{background:#f7f8fa;border-radius:6px;padding:10px}
+.small-box{font-size:11px;line-height:1.5;padding:6px 8px;min-height:0}
+.batch-only{display:none}
+.preview-area{flex-direction:column;align-items:center}
+#batch{display:none;width:100%}
+body.batch-mode #sheet{display:none}
+body.batch-mode #batch{display:block}
+body.batch-mode .batch-only{display:inline-block}
+.batch-summary{background:#fff;border-radius:6px;padding:10px 14px;font-size:13px;margin-bottom:10px}
+.batch-table{background:#fff;border-radius:6px;padding:6px;overflow-x:auto;margin-bottom:14px}
+.batch-table table{border-collapse:collapse;width:100%;font-size:12px}
+.batch-table th,.batch-table td{border:1px solid #e5e6eb;padding:4px 6px;text-align:left;vertical-align:top}
+.batch-table th{background:#f7f8fa;white-space:nowrap}
+.batch-table tr.warnrow td{background:#fff1f0}
+.batch-table .pre{white-space:pre-line}
+.brand-sec{margin-bottom:14px}
+.brand-head{font-size:13px;font-weight:600;margin:6px 0}
+.batch-sheet{justify-content:flex-start}
+.batch-item{display:flex;flex-direction:column;align-items:center}
+.batch-tag{font-size:9pt;color:#86909c;margin-bottom:1mm;font-family:Arial,sans-serif}
+.qty-below .styles{max-width:60mm;overflow-wrap:anywhere}
 .query-panel{max-width:1500px;margin:0 auto 20px;padding:0 24px}
 .query-panel .panel{max-height:none}
 .query-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -108,7 +132,7 @@ textarea{resize:vertical;min-height:50px}
 .chart-item svg{width:40px;height:40px}
 .chart-item span{font-size:10px;color:#4e5969;display:block;margin-top:2px;line-height:1.3}
 @media (max-width:900px){.main{grid-template-columns:1fr}.query-grid{grid-template-columns:1fr}.panel{max-height:none}}
-@media print{body{background:#fff}.topbar,.panel,.query-panel{display:none!important}.main{display:block;padding:0}.preview-area{padding:0}.label-sheet{box-shadow:none;padding:0;justify-content:flex-start}.care-label.over{outline:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:8mm}}
+@media print{body{background:#fff}.topbar,.panel,.query-panel{display:none!important}.main{display:block;padding:0}.preview-area{padding:0}.label-sheet{box-shadow:none;padding:0;justify-content:flex-start}.batch-summary,.batch-table{display:none!important}.brand-sec+.brand-sec{break-before:page;page-break-before:always}.brand-head{margin:0 0 2mm}.care-label.over{outline:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:8mm}@page ae{size:A4 portrait;margin:8mm}.page-ae{page:ae}.batch-item{break-inside:avoid;page-break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -118,6 +142,25 @@ textarea{resize:vertical;min-height:50px}
 </div>
 <div class="main">
   <div class="panel">
+    <div class="group batch-box">
+      <div class="group-title">Batch from Excel 批量生成</div>
+      <input type="file" id="batchFile" accept=".xlsx,.xls,.csv">
+      <div class="hint">第一张工作表需有「款号」「成分」「数量」列；可选「品牌」「性别」「产地」和各洗护列。</div>
+      <label class="check"><input type="checkbox" id="mergeAll"> 印款号的品牌（SH / ADV / CC / EdgeHill）也合并</label>
+      <div class="btn-row">
+        <button type="button" class="btn ghost small" id="btnTemplate">下载下单模板</button>
+        <button type="button" class="btn small batch-only" id="btnExport">导出结果 Excel</button>
+        <button type="button" class="btn ghost small batch-only" id="btnExit">返回单个标签</button>
+      </div>
+      <label class="field">品牌默认洗护（表中洗护留空时使用）</label>
+      <select id="presetBrand"></select>
+      <div class="qbox small-box" id="presetInfo"></div>
+      <div class="btn-row">
+        <button type="button" class="btn ghost small" id="presetSave">用下方「Care Instructions」设为此品牌默认</button>
+        <button type="button" class="btn ghost small" id="presetReset">恢复模板默认</button>
+      </div>
+    </div>
+    <div id="single">
     <div class="group">
       <div class="group-title">Style Number (auto brand)</div>
       <label class="field">STYLE #</label>
@@ -236,8 +279,16 @@ textarea{resize:vertical;min-height:50px}
       <select id="copies"><option>1</option><option>2</option><option selected>4</option><option>6</option><option>8</option></select>
       <div id="fitWarn" class="warn"></div>
     </div>
+    </div>
   </div>
-  <div class="preview-area"><div class="label-sheet" id="sheet"></div></div>
+  <div class="preview-area">
+    <div class="label-sheet" id="sheet"></div>
+    <div id="batch">
+      <div id="batchSummary" class="batch-summary"></div>
+      <div id="batchTable" class="batch-table"></div>
+      <div id="batchLabels"></div>
+    </div>
+  </div>
 </div>
 
 <div class="query-panel">
@@ -335,11 +386,14 @@ function titleCase(s){return s.toLowerCase().replace(/(^|[\s\-/(:,&])([a-zà-ÿ]
 function capFirst(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s}
 function detectTemplate(s){s=s.toUpperCase().trim();if(/^(F64EH|S74EH)/.test(s))return'b';if(/^F26/.test(s))return'c';if(/^(F64SW|F54SH|S64SM|F64SH|S74SH)/.test(s))return'a_sym';return'a_adv'}
 function brandCode(s){s=s.toUpperCase();if(/^F64SL/.test(s))return'S27CC';if(/^(F64SW|F54SH|S64SM|F64SH|S74SH)/.test(s))return'S27SH';if(/^(F64AW|S74AW)/.test(s))return'S27AD';if(/^(F64EH|S74EH)/.test(s))return'S27EC';if(/^F26/.test(s))return'S27AE';return'S27XX'}
+const BRANDS={S27CC:{name:'CLASS CLUB',tpl:'a_adv'},S27SH:{name:'SCENE & HEARD',tpl:'a_sym'},S27AD:{name:'ADVENTUREWEAR',tpl:'a_adv'},S27EC:{name:'EDGEHILL',tpl:'b'},S27AE:{name:'ANDY & EVAN',tpl:'c'}};
+const CATS=['wash','bleach','tumble','natural','iron','dryclean','wet'];
 function curTpl(){return $('templateOverride').value==='auto'?detectTemplate($('styleNo').value):$('templateOverride').value}
-function pick(cat){return CARE[cat][+$(cat).value]}
-function careRows(){return ['wash','bleach','tumble','natural','iron','dryclean','wet'].map(pick).filter(x=>x&&x[1]!=='(none)')}
-function selectedCare(){const r=careRows();document.querySelectorAll('#extras input:checked').forEach(c=>r.push(CARE.extras[+c.value]));return r}
-function careSymbols(){return careRows().filter(x=>x[0]).map(x=>SYM(x[0])).join('')}
+
+// 洗护选择 sel = {wash:i, bleach:i, ..., extras:[i]}
+function formSel(){const o={};CATS.forEach(c=>o[c]=+$(c).value);o.extras=[...document.querySelectorAll('#extras input:checked')].map(c=>+c.value);return o}
+function careOf(sel){const r=CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[1]!=='(none)');(sel.extras||[]).forEach(i=>r.push(CARE.extras[i]));return r}
+function symsOf(sel){return CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[0]).map(x=>SYM(x[0])).join('')}
 
 // 成分翻译：最长匹配优先，保留百分比与标点
 const FAB_SORTED=FABRIC.slice().sort((a,b)=>b[0].length-a[0].length);
@@ -361,94 +415,243 @@ function translateComp(txt,lang){ // lang 1=FR 2=ES
   }).join('\n');
   return {text,missing};
 }
-function countryRow(){return COUNTRY[+$('country').value]||COUNTRY[0]}
 function fixAbbr(s){return s.replace(/\bUsa\b/,'USA')}
-function originEN(){return 'Made in '+fixAbbr(titleCase(countryRow()[0]))}
-function originFR(){const g=countryRow()[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
-function originES(){return 'Hecho en '+titleCase(countryRow()[2])}
+function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
+function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
+function originES(c){return 'Hecho en '+titleCase(c[2])}
+// S27 规则：BATCH & TRACKING CODE = S27CC/SH/AD/EC/AE + / 工厂代码 / YY / MM（五个品牌相同）
+function trackCode(brand){return brand+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
+
+/* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
+   tpl, w, L, fm, comp, care(rows), syms(html), country(row), rn, track, decor,
+   styleLine(已转义, 印在标签上), qtyText(已转义), below(已转义, 标签下方的款号列表) */
+function labelHTML(d){
+  const box='width:'+d.w+'mm;height:'+d.L+'mm;--sec:'+((d.L-2*d.fm)/2)+'mm;', tail='<div class="tail" style="height:'+d.fm+'mm"></div>';
+  const rn=esc(d.rn), track=esc(d.track), care=d.care;
+  const qtyDiv=d.qtyText?'<div class="qty">'+d.qtyText+'</div>':'';
+  const belowDiv=(d.below||d.qtyText)?'<div class="qty-below">'+(d.below?'<div class="styles">'+d.below+'</div>':'')+qtyDiv+'</div>':'';
+  let h='';
+  if(d.tpl==='b'){
+    h+='<div class="label-wrap"><div class="care-label tpl-b" style="'+box+'">'+tail+'<div class="dash-line"></div>';
+    h+='<div class="sec top"><div class="comp-b">'+esc(titleCase(d.comp))+'</div><div class="sp"></div>';
+    if(d.decor)h+='<div class="decor-b">Exclusive<br>of Decoration</div><div class="gap" style="height:4mm"></div>';
+    h+='<div class="origin-b nw">'+esc(originEN(d.country))+'</div></div><div class="dash-line"></div>';
+    h+='<div class="sec bot"><div class="care-b">'+care.map(x=>esc(x[1])).join('\n')+'</div><div class="gap" style="height:1.5mm"></div><div class="style-b'+(d.styleLine.includes('<br>')?'':' nw')+'">Style # '+d.styleLine+'</div><div class="gap" style="height:2.2mm"></div><div class="rn-ys nw">RN'+rn+'<br>'+track+'</div></div>';
+    h+='<div class="dash-line"></div>'+tail+'</div>'+belowDiv+'</div>';
+  }else if(d.tpl==='c'){
+    const fr=translateComp(d.comp,1),es=translateComp(d.comp,2);
+    const en=care.map(x=>esc(x[1].replace(/\./g,''))).join('<br>'), frc=care.map(x=>esc(x[2])).filter(Boolean).join('<br>'), esc_=care.map(x=>esc(x[3])).filter(Boolean).join('<br>');
+    h+='<div class="label-wrap">';
+    // 第一张：EN + FR
+    h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
+    h+='<div class="sec s1"><div class="logo">ANDY &amp; EVAN<sup>®</sup></div><div class="sp"></div><div class="c-comp">'+esc(d.comp)+'</div><div class="sp"></div>';
+    h+='<div class="c-care-en">'+en+'</div><div class="symbols">'+d.syms+'</div>';
+    h+='<div class="c-meta">'+esc(fixAbbr(titleCase(originEN(d.country))))+'<br>RN#'+rn+'<br>'+track+'</div></div><div class="dash-line"></div>';
+    h+='<div class="sec s2"><div class="c-comp">'+esc(fr.text)+'</div><div class="sp"></div><div class="c-care-fr">'+frc+'</div><div class="gap1"></div>';
+    h+='<div class="c-addr">'+esc(originFR(d.country))+'<br>WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div><div class="sp"></div></div>';
+    h+='<div class="dash-line"></div>'+tail+'</div>';
+    // 第二张：ES + 进口商
+    h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
+    h+='<div class="sec s3"><div class="c-comp-es">'+esc(es.text)+'</div><div class="sp"></div><div class="c-care-es">'+esc_+'</div><div class="gap2"></div><div class="c-care-es">'+esc(originES(d.country))+'</div><div class="sp"></div></div><div class="dash-line"></div>';
+    h+='<div class="sec s4"><div class="c-imp">IMPORTADO POR:<br>IMPORTADORA PRIMEX<br>S.A. DE C.V.<br>BLVD. MAGNOCENTRO<br>NO. 4 SAN FERNANDO<br>LA HERRADURA<br>HUIXQUILUCAN,<br>ESTADO DE MEXICO<br>C.P. 52765<br>RFC: IPR-903907-S70</div></div>';
+    h+='<div class="dash-line"></div>'+tail+'</div>'+belowDiv+'</div>';
+  }else{
+    // SH / ADV / CC：数量印在下折边内（与 Dillards 模板一致）；合并时款号列表放在标签下方
+    h+='<div class="label-wrap"><div class="care-label tpl-a" style="'+box+'">'+tail+'<div class="dash-line"></div>';
+    h+='<div class="sec top"><div class="sx">'+esc(d.comp.toUpperCase())+'</div><div class="sp"></div><div class="meta nw"><div class="origin">'+esc(originEN(d.country).toUpperCase())+'</div><div>RN#'+rn+'</div><div>'+track+'</div></div></div><div class="dash-line"></div>';
+    h+='<div class="sec bot"><div class="sx">'+care.map(x=>esc(x[1].toUpperCase())).join('\n')+'</div><div class="sp"></div>';
+    if(d.tpl==='a_sym')h+='<div class="symbols">'+d.syms+'</div><div class="gap" style="height:3.55mm"></div>';
+    h+='<div class="sx'+(d.styleLine.includes('<br>')?'':' nw')+'">STYLE '+d.styleLine+'</div></div><div class="dash-line"></div>';
+    h+='<div class="tail" style="height:'+d.fm+'mm">'+(d.below?'':qtyDiv)+'</div></div>'+(d.below?belowDiv:'')+'</div>';
+  }
+  return h;
+}
 
 let lastTpl=null;
 function applyTemplateDefaults(tpl){const t=TPL[tpl];$('labelWidth').value=t.w;$('labelLength').value=t.l;$('foldMm').value=t.fold;$('rn').value=t.rn}
-function trackingLine(tpl){
-  const o=$('trackOverride').value.trim();if(o)return o;
-  // S27 规则：BATCH & TRACKING CODE = S27CC/SH/AD/EC/AE + / 工厂代码 / YY / MM（五个品牌相同）
-  return brandCode($('styleNo').value)+'/'+$('fty').value.trim()+'/'+$('ys').value.trim();
-}
-
 function render(){
-  const tpl=curTpl();
+  const tpl=curTpl(), brand=brandCode($('styleNo').value);
   if(tpl!==lastTpl){applyTemplateDefaults(tpl);lastTpl=tpl}
-  $('brandBadge').innerHTML='<span class="brand-badge">'+esc(TPL[tpl].name)+' · '+brandCode($('styleNo').value)+'</span>';
-  const w=parseFloat($('labelWidth').value)||TPL[tpl].w, L=parseFloat($('labelLength').value)||TPL[tpl].l, fm=Math.max(0,parseFloat($('foldMm').value)||0), n=parseInt($('copies').value);
-  const compRaw=$('composition').value.replace(/\s+$/,''), styleNo=esc($('styleNo').value.trim()), qty=esc($('qty').value.trim()), rn=esc($('rn').value.trim());
-  const care=selectedCare(), track=esc(trackingLine(tpl));
-  const box='width:'+w+'mm;height:'+L+'mm;--sec:'+((L-2*fm)/2)+'mm;', tail='<div class="tail" style="height:'+fm+'mm"></div>';
+  $('brandBadge').innerHTML='<span class="brand-badge">'+esc(TPL[tpl].name)+' · '+brand+'</span>';
+  const sel=formSel(), comp=$('composition').value.replace(/\s+$/,''), qty=$('qty').value.trim();
+  const d={tpl, w:parseFloat($('labelWidth').value)||TPL[tpl].w, L:parseFloat($('labelLength').value)||TPL[tpl].l, fm:Math.max(0,parseFloat($('foldMm').value)||0),
+    comp, care:careOf(sel), syms:symsOf(sel), country:COUNTRY[+$('country').value]||COUNTRY[0], rn:$('rn').value.trim(),
+    track:$('trackOverride').value.trim()||trackCode(brand), decor:$('decor').checked, styleLine:esc($('styleNo').value.trim()),
+    qtyText:qty?'数量：'+esc(qty):'', below:tpl==='c'&&qty?esc($('styleNo').value.trim()):''};
   const warns=[];
-  let h='';
-  for(let c=0;c<n;c++){
-    if(tpl==='b'){
-      h+='<div class="label-wrap"><div class="care-label tpl-b" style="'+box+'">'+tail+'<div class="dash-line"></div>';
-      h+='<div class="sec top"><div class="comp-b">'+esc(titleCase(compRaw))+'</div><div class="sp"></div>';
-      if($('decor').checked)h+='<div class="decor-b">Exclusive<br>of Decoration</div><div class="gap" style="height:4mm"></div>';
-      h+='<div class="origin-b nw">'+esc(originEN())+'</div></div><div class="dash-line"></div>';
-      h+='<div class="sec bot"><div class="care-b">'+care.map(x=>esc(x[1])).join('\n')+'</div><div class="gap" style="height:1.5mm"></div><div class="style-b nw">Style # '+styleNo+'</div><div class="gap" style="height:2.2mm"></div><div class="rn-ys nw">RN'+rn+'<br>'+track+'</div></div>';
-      h+='<div class="dash-line"></div>'+tail+'</div>';
-      if(qty)h+='<div class="qty">数量：'+qty+'</div>';
-      h+='</div>';
-    }else if(tpl==='c'){
-      const fr=translateComp(compRaw,1),es=translateComp(compRaw,2);
-      if(c===0&&fr.missing.length)warns.push('No FR/ES translation in the S27 rule for: '+[...new Set(fr.missing)].join(', '));
-      const en=care.map(x=>esc(x[1].replace(/\./g,''))).join('<br>'), frc=care.map(x=>esc(x[2])).filter(Boolean).join('<br>'), esc_=care.map(x=>esc(x[3])).filter(Boolean).join('<br>');
-      h+='<div class="label-wrap">';
-      // 第一张：EN + FR
-      h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
-      h+='<div class="sec s1"><div class="logo">ANDY &amp; EVAN<sup>®</sup></div><div class="sp"></div><div class="c-comp">'+esc(compRaw)+'</div><div class="sp"></div>';
-      h+='<div class="c-care-en">'+en+'</div><div class="symbols">'+careSymbols()+'</div>';
-      h+='<div class="c-meta">'+esc(titleCase(originEN()).replace(/\bUsa\b/,'USA'))+'<br>RN#'+rn+'<br>'+track+'</div></div><div class="dash-line"></div>';
-      h+='<div class="sec s2"><div class="c-comp">'+esc(fr.text)+'</div><div class="sp"></div><div class="c-care-fr">'+frc+'</div><div class="gap1"></div>';
-      h+='<div class="c-addr">'+esc(originFR())+'<br>WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div><div class="sp"></div></div>';
-      h+='<div class="dash-line"></div>'+tail+'</div>';
-      // 第二张：ES + 进口商
-      h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
-      h+='<div class="sec s3"><div class="c-comp-es">'+esc(es.text)+'</div><div class="sp"></div><div class="c-care-es">'+esc_+'</div><div class="gap2"></div><div class="c-care-es">'+esc(originES())+'</div><div class="sp"></div></div><div class="dash-line"></div>';
-      h+='<div class="sec s4"><div class="c-imp">IMPORTADO POR:<br>IMPORTADORA PRIMEX<br>S.A. DE C.V.<br>BLVD. MAGNOCENTRO<br>NO. 4 SAN FERNANDO<br>LA HERRADURA<br>HUIXQUILUCAN,<br>ESTADO DE MEXICO<br>C.P. 52765<br>RFC: IPR-903907-S70</div></div>';
-      h+='<div class="dash-line"></div>'+tail+'</div>';
-      if(qty)h+='<div class="qty-below"><div class="styles">'+styleNo+'</div><div class="qty">数量：'+qty+'</div></div>';
-      h+='</div>';
-    }else{
-      // SH / ADV / CC
-      h+='<div class="label-wrap"><div class="care-label tpl-a" style="'+box+'">'+tail+'<div class="dash-line"></div>';
-      h+='<div class="sec top"><div class="sx">'+esc(compRaw.toUpperCase())+'</div><div class="sp"></div><div class="meta nw"><div class="origin">'+esc(originEN().toUpperCase())+'</div><div>RN#'+rn+'</div><div>'+track+'</div></div></div><div class="dash-line"></div>';
-      h+='<div class="sec bot"><div class="sx">'+care.map(x=>esc(x[1].toUpperCase())).join('\n')+'</div><div class="sp"></div>';
-      if(tpl==='a_sym')h+='<div class="symbols">'+careSymbols()+'</div><div class="gap" style="height:3.55mm"></div>';
-      h+='<div class="sx nw">STYLE '+styleNo+'</div></div><div class="dash-line"></div>';
-      h+='<div class="tail" style="height:'+fm+'mm">'+(qty?'<div class="qty">数量：'+qty+'</div>':'')+'</div></div></div>';
-    }
-  }
-  $('sheet').innerHTML=h;
-  fitLabels(warns);
+  if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)warns.push('No FR/ES translation in the S27 rule for: '+[...new Set(m)].join(', '))}
+  $('sheet').innerHTML=labelHTML(d).repeat(parseInt($('copies').value));
+  $('sheet').classList.toggle('page-ae',tpl==='c');
+  const r=fitAll($('sheet'));
+  if(r.bad)warns.push('Content does not fit the label: shorten the text or change width/length.');
+  else if(r.shrunk)warns.push('Note: font reduced below the template size so the content fits.');
+  $('fitWarn').textContent=warns.join('\n');
 }
 
 // 各区块内容超出时整体按比例缩小字号（--k），最小 70%；仍超出则标红
 function overflowing(el){return el.scrollHeight>el.clientHeight+0.5||el.scrollWidth>el.clientWidth+0.5}
-function fitLabels(warns){
-  let bad=0,shrunk=false;
-  document.querySelectorAll('#sheet .care-label').forEach(lab=>{
-    let ok=true;
-    lab.querySelectorAll('.sec').forEach(el=>{
-      let k=1;el.style.setProperty('--k',k);
-      while(overflowing(el)&&k>0.7){k=Math.round((k-0.02)*100)/100;el.style.setProperty('--k',k)}
-      if(overflowing(el))ok=false;
-      if(k<1)shrunk=true;
-    });
-    lab.classList.toggle('over',!ok);if(!ok)bad++;
+function fitLabel(lab){
+  let ok=true,shrunk=false;
+  lab.querySelectorAll('.sec').forEach(el=>{
+    let k=1;el.style.setProperty('--k',k);
+    while(overflowing(el)&&k>0.7){k=Math.round((k-0.02)*100)/100;el.style.setProperty('--k',k)}
+    if(overflowing(el))ok=false;
+    if(k<1)shrunk=true;
   });
-  if(bad)warns.push('Content does not fit the label: shorten the text or change width/length.');
-  else if(shrunk)warns.push('Note: font reduced below the template size so the content fits.');
-  $('fitWarn').textContent=warns.join('\n');
+  lab.classList.toggle('over',!ok);
+  return {ok,shrunk};
 }
+function fitAll(root){let bad=0,shrunk=false;root.querySelectorAll('.care-label').forEach(l=>{const r=fitLabel(l);if(!r.ok)bad++;if(r.shrunk)shrunk=true});return {bad,shrunk}}
 
 function resetForm(){$('composition').value='';$('styleNo').value='';$('qty').value='';$('trackOverride').value='';render()}
+
+// =====================================================================
+// 批量：上传 Excel → 按「品牌 + 性别 + 成分 + 洗护 + 产地」合并 → 结果表 + 标签
+// =====================================================================
+// 品牌默认洗护（取自已批复模板 + 0921 批复），可在页面上用当前设置覆盖（保存在本机浏览器）
+const PRESET_BUILTIN={
+  S27CC:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
+  S27SH:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
+  S27AD:{wash:2,bleach:0,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
+  S27EC:{wash:2,bleach:1,tumble:1,natural:0,iron:1,dryclean:0,wet:0,extras:[]},
+  S27AE:{wash:2,bleach:0,tumble:2,natural:0,iron:1,dryclean:0,wet:0,extras:[]}
+};
+function loadPresets(){let p={};try{p=JSON.parse(localStorage.getItem('careLabelPresets')||'{}')}catch(e){}return Object.assign({},PRESET_BUILTIN,p)}
+function savePreset(brand,sel){let p={};try{p=JSON.parse(localStorage.getItem('careLabelPresets')||'{}')}catch(e){}p[brand]=sel;try{localStorage.setItem('careLabelPresets',JSON.stringify(p))}catch(e){}}
+function resetPresets(){try{localStorage.removeItem('careLabelPresets')}catch(e){}}
+
+const HEAD={
+  style:['款号','款式','款式号','style','styleno','style#','stylenumber','styleno.'],
+  comp:['成分','成份','composition','fabric','fabriccontent','content'],
+  qty:['数量','qty','quantity','pcs','labelqty'],
+  qtyLoss:['含损耗','含损耗数量','qtywithloss'],
+  qtyOrder:['订单数','订单数量','orderqty','order'],
+  gender:['性别','男女','男女童','男童/女童','gender','boys/girls','sex'],
+  brand:['品牌','brand','label','brand(label)','品牌(label)'],
+  origin:['产地','原产地','origin','countryoforigin','country'],
+  wash:['水洗','washing','wash'], bleach:['漂白','bleaching','bleach'], tumble:['烘干','滚筒烘干','tumbledrying','tumbledry','drying'],
+  natural:['晾干','自然晾干','naturaldrying'], iron:['熨烫','ironing','iron'], dryclean:['干洗','drycleaning','professionaldrycare','professionalcare'], wet:['湿洗','wetcleaning','professionalwetcare']
+};
+const nk=s=>String(s==null?'':s).toLowerCase().replace(/[\s:：_\-（）()]/g,'');
+function findHeader(rows){
+  for(let r=0;r<Math.min(rows.length,15);r++){
+    const cols={};
+    rows[r].forEach((v,i)=>{const k=nk(v);for(const [f,names] of Object.entries(HEAD)){if(cols[f]==null&&names.some(n=>nk(n)===k))cols[f]=i}});
+    if(cols.style!=null&&cols.comp!=null)return {row:r,cols};
+  }
+  return null;
+}
+function normGender(v){v=String(v||'').trim().toLowerCase();if(!v)return '';if(/男|boy|^b$|^m$|male/.test(v)&&!/female/.test(v))return '男童';if(/女|girl|^g$|^f$|female/.test(v))return '女童';return String(v)}
+function brandFromText(v){
+  const s=String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!s)return '';
+  const m={CLASSCLUB:'S27CC',CC:'S27CC',S27CC:'S27CC',SCENEHEARD:'S27SH',SCENEANDHEARD:'S27SH',SH:'S27SH',S27SH:'S27SH',ADVENTUREWEAR:'S27AD',AD:'S27AD',ADV:'S27AD',S27AD:'S27AD',EDGEHILL:'S27EC',EC:'S27EC',EH:'S27EC',S27EC:'S27EC',ANDYEVAN:'S27AE',ANDYANDEVAN:'S27AE',AE:'S27AE',S27AE:'S27AE'};
+  return m[s]||'';
+}
+const nopt=s=>String(s||'').toLowerCase().replace(/[^a-z0-9°]/g,'');
+function matchCare(cat,text){const t=nopt(text);if(!t)return -1;return CARE[cat].findIndex(r=>nopt(r[1])===t)}
+function matchCountry(text){const t=nopt(String(text||'').replace(/made\s*in/i,''));if(!t)return -1;return COUNTRY.findIndex(c=>nopt(c[0])===t)}
+function normCompKey(s){return String(s).toLowerCase().replace(/[\s,，;；.]/g,'')}
+// 百分比检查：按部位（Shell: / Lining: …）分段，每段合计应为 100%；没有部位名时整个成分合计 100%
+function checkPct(comp){
+  const segs=comp.split(/(?<![A-Za-z])(?=[A-Za-z][A-Za-z &\/\d]*\s*[:：])/).map(x=>x.trim()).filter(Boolean);
+  const bad=[];segs.forEach(seg=>{const nums=[...seg.matchAll(/(\d+(?:\.\d+)?)\s*%/g)].map(m=>+m[1]);if(!nums.length)return;const sum=Math.round(nums.reduce((a,b)=>a+b,0)*100)/100;if(sum!==100)bad.push(seg.replace(/\s+/g,' ')+' = '+sum+'%')});return bad}
+const fmtQ=n=>String(n);
+
+let BATCH=null; // {groups, rows, file}
+function parseWorkbook(wb,fileName){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+  const hd=findHeader(rows);
+  if(!hd)throw new Error('找不到表头：第一张工作表需要有「款号」和「成分」两列。');
+  const c=hd.cols, qCol=c.qty!=null?c.qty:(c.qtyLoss!=null?c.qtyLoss:c.qtyOrder);
+  const presets=loadPresets(), defCountry=+$('country').value, mergeAll=$('mergeAll').checked;
+  const items=[];
+  for(let r=hd.row+1;r<rows.length;r++){
+    const row=rows[r], style=String(row[c.style]||'').trim(), comp=String(row[c.comp]||'').replace(/\r/g,'').trim();
+    if(!style&&!comp)continue;
+    if(/^(合计|总计|total)$/i.test(style))continue;
+    const notes=[];
+    const brand=brandFromText(c.brand!=null?row[c.brand]:'')||brandCode(style);
+    if(!BRANDS[brand])notes.push('无法识别品牌');
+    const tpl=(BRANDS[brand]||{tpl:'a_adv'}).tpl;
+    const qtyRaw=qCol!=null?String(row[qCol]).replace(/[,，\s]/g,''):'';
+    const qty=qtyRaw===''?0:Number(qtyRaw);
+    if(qCol==null||qtyRaw===''||isNaN(qty))notes.push('数量为空或不是数字');
+    if(!comp)notes.push('成分为空');
+    const sel=Object.assign({},presets[brand]||PRESET_BUILTIN.S27SH);sel.extras=(sel.extras||[]).slice();
+    CATS.forEach(cat=>{if(c[cat]==null)return;const v=String(row[c[cat]]||'').trim();if(!v)return;const i=matchCare(cat,v);if(i<0)notes.push('洗护「'+v+'」不在 S27 规则中，已用品牌默认');else sel[cat]=i});
+    let country=defCountry;if(c.origin!=null&&String(row[c.origin]).trim()){const i=matchCountry(row[c.origin]);if(i<0)notes.push('产地「'+row[c.origin]+'」不在 S27 国家表中，已用默认');else country=i}
+    checkPct(comp).forEach(x=>notes.push('成分百分比不等于 100%：'+x));
+    if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)notes.push('无 FR/ES 翻译：'+[...new Set(m)].join(', '))}
+    items.push({row:r+1,style,comp,qty:isNaN(qty)?0:qty,gender:normGender(c.gender!=null?row[c.gender]:''),brand,tpl,sel,country,notes});
+  }
+  // 合并：同品牌 + 同性别 + 同成分 + 同洗护 + 同产地；标签上印款号的模板（SH/ADV/CC/EdgeHill）默认按款分开
+  const groups=[],map=new Map();
+  items.forEach(it=>{
+    const key=[it.brand,it.gender,normCompKey(it.comp),JSON.stringify(it.sel),it.country,(it.tpl!=='c'&&!mergeAll)?it.style:''].join('|');
+    let g=map.get(key);
+    if(!g){g={brand:it.brand,tpl:it.tpl,gender:it.gender,comp:it.comp,sel:it.sel,country:it.country,items:[],notes:[]};map.set(key,g);groups.push(g)}
+    g.items.push(it);it.notes.forEach(n=>{if(!g.notes.includes(n))g.notes.push(n)});
+  });
+  const order=Object.keys(BRANDS);
+  groups.sort((a,b)=>(order.indexOf(a.brand)+100*(order.indexOf(a.brand)<0))-(order.indexOf(b.brand)+100*(order.indexOf(b.brand)<0))||a.gender.localeCompare(b.gender));
+  groups.forEach((g,i)=>{g.no=i+1;g.total=g.items.reduce((s,x)=>s+x.qty,0);g.styles=g.items.map(x=>x.style);g.qtys=g.items.map(x=>x.qty);g.track=trackCode(g.brand)});
+  BATCH={groups,items,file:fileName,qtyHeader:qCol!=null?rows[hd.row][qCol]:''};
+  renderBatch();
+}
+function brandName(b){return (BRANDS[b]||{name:b}).name}
+function renderBatch(){
+  const B=BATCH;if(!B)return;
+  document.body.classList.add('batch-mode');
+  let h='';let lastBrand=null;
+  B.groups.forEach(g=>{
+    const t=TPL[g.tpl], merged=g.items.length>1;
+    const styleLine=merged&&g.tpl!=='c'?g.styles.map(esc).join('<br>'):esc(g.styles[0]);
+    const qtyText='数量：'+(merged?g.qtys.map(fmtQ).join(' + ')+' = '+g.total:g.total);
+    const d={tpl:g.tpl,w:t.w,L:t.l,fm:t.fold,comp:g.comp,care:careOf(g.sel),syms:symsOf(g.sel),country:COUNTRY[g.country],rn:t.rn,track:g.track,decor:$('decor').checked,
+      styleLine,qtyText,below:(merged||g.tpl==='c')?g.styles.map(esc).join(' + '):''};
+    if(g.brand!==lastBrand){if(lastBrand!==null)h+='</div></div>';h+='<div class="brand-sec'+(g.tpl==='c'?' page-ae':'')+'"><div class="brand-head">'+esc(brandName(g.brand))+' ('+esc(g.brand)+')</div><div class="label-sheet batch-sheet">';lastBrand=g.brand}
+    h+='<div class="batch-item" data-no="'+g.no+'"><div class="batch-tag">#'+g.no+(g.gender?' · '+esc(g.gender):'')+'</div>'+labelHTML(d)+'</div>';
+  });
+  if(lastBrand!==null)h+='</div></div>';
+  $('batchLabels').innerHTML=h;
+  // 自动适配并把放不下/缩小的情况记入备注
+  B.groups.forEach(g=>{
+    const el=document.querySelector('.batch-item[data-no="'+g.no+'"]');let bad=false,shr=false;
+    el.querySelectorAll('.care-label').forEach(l=>{const r=fitLabel(l);if(!r.ok)bad=true;if(r.shrunk)shr=true});
+    g.fit=bad?'放不下，需缩短文字':(shr?'已自动缩小字号':'');
+  });
+  const totalQty=B.groups.reduce((s,g)=>s+g.total,0), nNotes=B.groups.filter(g=>g.notes.length||g.fit.startsWith('放不下')).length;
+  $('batchSummary').innerHTML='<b>'+esc(B.file)+'</b>：'+B.items.length+' 行 → '+B.groups.length+' 个标签，合计数量 '+totalQty+(B.qtyHeader?'（数量取自「'+esc(B.qtyHeader)+'」列）':'')+(nNotes?' · <span style="color:#e63946">'+nNotes+' 个需要检查</span>':'');
+  $('batchTable').innerHTML='<table><thead><tr><th>#</th><th>品牌</th><th>性别</th><th>成分</th><th>洗护</th><th>款号</th><th>数量</th><th>合计</th><th>追踪码</th><th>备注</th></tr></thead><tbody>'+
+    B.groups.map(g=>'<tr'+((g.notes.length||g.fit.startsWith('放不下'))?' class="warnrow"':'')+'><td>'+g.no+'</td><td>'+esc(brandName(g.brand))+'</td><td>'+esc(g.gender||'-')+'</td><td class="pre">'+esc(g.comp)+'</td><td>'+careOf(g.sel).map(x=>esc(x[1])).join('<br>')+'</td><td>'+g.styles.map(esc).join(' + ')+'</td><td>'+g.qtys.join(' + ')+'</td><td><b>'+g.total+'</b></td><td>'+esc(g.track)+'</td><td>'+[...g.notes,g.fit].filter(Boolean).map(esc).join('<br>')+'</td></tr>').join('')+'</tbody></table>';
+}
+function exportBatch(){
+  if(!BATCH)return;
+  const g1=[['#','品牌 Brand','品牌代码','性别','成分 Composition','洗护 Care (EN)','款号 Styles','数量 Qty','合计 Total','追踪码 Tracking','模板','备注']];
+  BATCH.groups.forEach(g=>g1.push([g.no,brandName(g.brand),g.brand,g.gender,g.comp,careOf(g.sel).map(x=>x[1]).join(' / '),g.styles.join(' + '),g.qtys.join(' + '),g.total,g.track,TPL[g.tpl].name,[...g.notes,g.fit].filter(Boolean).join('; ')]));
+  const g2=[['原表行号','款号','品牌','性别','成分','数量','合并到标签 #']];
+  BATCH.groups.forEach(g=>g.items.forEach(it=>g2.push([it.row,it.style,brandName(it.brand),it.gender,it.comp,it.qty,g.no])));
+  g2.sort((a,b)=>typeof a[0]==='number'&&typeof b[0]==='number'?a[0]-b[0]:0);
+  const wb=XLSX.utils.book_new();
+  const s1=XLSX.utils.aoa_to_sheet(g1);s1['!cols']=[{wch:4},{wch:16},{wch:8},{wch:6},{wch:28},{wch:40},{wch:36},{wch:20},{wch:8},{wch:16},{wch:14},{wch:40}];
+  const s2=XLSX.utils.aoa_to_sheet(g2);s2['!cols']=[{wch:8},{wch:20},{wch:16},{wch:6},{wch:30},{wch:8},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,s1,'Labels 标签');XLSX.utils.book_append_sheet(wb,s2,'Styles 明细');
+  XLSX.writeFile(wb,'care-labels-'+BATCH.file.replace(/\.[^.]+$/,'')+'.xlsx');
+}
+function downloadInputTemplate(){
+  const head=['品牌 Brand','款号 Style','成分 Composition','性别 Gender','数量 Qty','产地 Origin','水洗 Washing','漂白 Bleaching','烘干 Tumble drying','自然晾干 Natural drying','熨烫 Ironing','干洗 Dry care','湿洗 Wet care'];
+  const ex=[['','F26G21683B-LBA','95% Cotton 5% Elastane','女童',400],['','F26G21684B-WHA','95% Cotton 5% Elastane','女童',1250],['','F26G31323A-WHA','95% Cotton 5% Elastane','男童',720],['','F64SW840B/J','100% Cotton','男童',3400],['','F64EH44024','30% Wool\n25% Nylon\n45% Acrylic','女童',2200,'','','Only non-chlorine bleach when needed.']];
+  const opts=[['分类 Category','可填写的内容（英文，与 S27 规则一致）']];
+  [['水洗 Washing','wash'],['漂白 Bleaching','bleach'],['烘干 Tumble drying','tumble'],['自然晾干 Natural drying','natural'],['熨烫 Ironing','iron'],['干洗 Dry care','dryclean'],['湿洗 Wet care','wet']].forEach(([l,c])=>CARE[c].forEach(r=>{if(r[1]!=='(none)')opts.push([l,r[1]])}));
+  const note=[['说明'],['必填：款号、成分、数量。品牌可留空（按款号开头自动识别）。'],['性别填 男童 / 女童（或 Boys / Girls）。'],['洗护各列留空 = 使用该品牌的默认洗护；填写时请从「Care options」页复制原文。'],['合并规则：同品牌 + 同性别 + 同成分 + 同洗护 + 同产地 → 合并为一个标签，数量相加。']];
+  const wb=XLSX.utils.book_new();const s=XLSX.utils.aoa_to_sheet([head,...ex]);s['!cols']=head.map((h,i)=>({wch:[14,18,30,10,8,10,34,34,26,26,32,30,30][i]}));
+  XLSX.utils.book_append_sheet(wb,s,'Order 下单');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(opts),'Care options');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(note),'说明');
+  XLSX.writeFile(wb,'care-label-order-template.xlsx');
+}
+function needXLSX(){if(typeof XLSX==='undefined'){alert('读取/导出 Excel 需要联网加载组件（cdnjs），请检查网络后刷新页面。');return false}return true}
+function exitBatch(){BATCH=null;document.body.classList.remove('batch-mode');$('batchFile').value='';$('batchLabels').innerHTML='';$('batchTable').innerHTML='';$('batchSummary').innerHTML='';render()}
+function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('presetInfo').innerHTML=careOf(p[b]).map(x=>esc(x[1])).join('<br>')}
 
 // ---------- 初始化 ----------
 (function init(){
@@ -475,7 +678,22 @@ function resetForm(){$('composition').value='';$('styleNo').value='';$('qty').va
     $('qCareResult').innerHTML=(f[0]?'<div style="margin-bottom:6px;">'+SYM(f[0])+'</div>':'<div style="color:#86909c">No symbol (text only)</div>')+'<b>EN:</b> '+esc(f[1])+'<br><b>FR:</b> '+esc(f[2])+'<br><b>ES:</b> '+esc(f[3]);
   });
   $('qSymbolChart').innerHTML=SYMBOL_CHART.map(([cat,items])=>'<div class="chart-cat">'+esc(cat)+'</div><div class="chart">'+items.map(([k,l])=>'<div class="chart-item">'+SYM(k)+'<span>'+esc(l)+'</span></div>').join('')+'</div>').join('');
-  document.querySelectorAll('.main .panel input,.main .panel select,.main .panel textarea').forEach(e=>{e.addEventListener('input',render);e.addEventListener('change',render)});
+  document.querySelectorAll('#single input,#single select,#single textarea').forEach(e=>{e.addEventListener('input',render);e.addEventListener('change',render)});
+  // 批量
+  $('presetBrand').innerHTML=Object.entries(BRANDS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+'</option>').join('');
+  $('presetBrand').addEventListener('change',renderPresetInfo);renderPresetInfo();
+  $('presetSave').addEventListener('click',()=>{savePreset($('presetBrand').value,formSel());renderPresetInfo();if(BATCH)$('batchFile').dispatchEvent(new Event('change'))});
+  $('presetReset').addEventListener('click',()=>{resetPresets();renderPresetInfo();if(BATCH)$('batchFile').dispatchEvent(new Event('change'))});
+  $('batchFile').addEventListener('change',function(){
+    const f=this.files[0];if(!f||!needXLSX())return;
+    const rd=new FileReader();
+    rd.onload=e=>{try{parseWorkbook(XLSX.read(new Uint8Array(e.target.result),{type:'array'}),f.name)}catch(err){alert(err.message||String(err))}};
+    rd.readAsArrayBuffer(f);
+  });
+  $('mergeAll').addEventListener('change',()=>{if(BATCH)$('batchFile').dispatchEvent(new Event('change'))});
+  $('btnTemplate').addEventListener('click',()=>{if(needXLSX())downloadInputTemplate()});
+  $('btnExport').addEventListener('click',()=>{if(needXLSX())exportBatch()});
+  $('btnExit').addEventListener('click',exitBatch);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
   render();
 })();
