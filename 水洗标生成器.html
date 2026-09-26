@@ -24,32 +24,34 @@ textarea{resize:vertical;min-height:50px}
 .check{display:flex;align-items:center;gap:6px;font-size:12px;color:#4e5969;margin-top:6px}
 .brand-badge{display:inline-block;background:#e8f3ff;color:#165dff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600;margin-top:6px}
 .preview-area{display:flex;justify-content:center;padding:10px}
-.label-sheet{background:#fff;padding:20px;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.08);display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.care-label{background:#fff;font-family:Arial,sans-serif;color:#000;text-align:center;font-size:10.5px;line-height:1.45;display:flex;flex-direction:column}
-.care-label .half-top{min-height:150px;display:flex;flex-direction:column;justify-content:center;padding:8px;line-height:1.4}
-.care-label .half-bot{min-height:150px;display:flex;flex-direction:column;justify-content:center;padding:8px;line-height:1.4}
-.care-label .fold{border-top:1px dashed #999;flex-shrink:0}
-.care-label.edge{border-left:1px solid #333;border-right:1px solid #333}
-.care-label .comp{font-weight:bold;font-size:11px;margin-bottom:8px;white-space:pre-line}
-.care-label .origin{margin:4px 0}
-.care-label .rn{font-size:10px;margin:2px 0}
-.care-label .ys{font-size:10px;margin:2px 0}
-.care-label .care-text{margin:6px 0;white-space:pre-line}
-.care-label .symbols{display:flex;justify-content:center;gap:4px;margin:6px 0}
-.care-label .symbols svg{width:20px;height:20px}
-.care-label .style{margin-top:6px;font-size:10.5px}
-.care-label .qty{color:#e63946;font-size:13px;font-weight:bold;margin:6px 0}
-.tpl-b{font-family:Georgia,serif;border:2px solid #3399cc}
-.tpl-b .fold{border-top:2px dashed #3399cc;flex-shrink:0}
-.tpl-b .tail{height:18px;flex-shrink:0}
-.tpl-b .half-top{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 10px}
-.tpl-b .half-bot{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 10px}
-.tpl-b .comp-b{font-style:italic;font-size:12px;margin-bottom:12px;line-height:1.4}
-.tpl-b .decor-b{font-style:italic;font-size:12px;margin-bottom:12px;line-height:1.4}
-.tpl-b .origin-b{font-style:italic;font-size:12px;margin-bottom:10px;line-height:1.4}
-.tpl-b .care-text-b{font-style:italic;font-size:12px;margin-bottom:10px;line-height:1.4;text-align:center}
-.tpl-b .style-b{font-style:italic;font-size:12px;margin-bottom:8px;line-height:1.4}
-.tpl-b .rn-b,.tpl-b .ys-b{font-weight:bold;font-style:italic;font-size:12px;text-align:center;line-height:1.4}
+.label-sheet{background:#fff;padding:20px;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.08);display:flex;gap:6mm;flex-wrap:wrap;justify-content:center;align-items:flex-start;align-self:flex-start}
+.fit-warn{color:#e63946;font-size:12px;margin-top:6px}
+/* 标签按实际物理尺寸(mm)绘制：上折边 + 上半 + 下半 + 下折边，两半等高；内容超出时自动缩小字号 */
+.label-wrap{display:flex;flex-direction:column;align-items:center;break-inside:avoid;page-break-inside:avoid}
+.care-label{background:#fff;color:#000;text-align:center;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.care-label .tail{flex:0 0 auto}
+.care-label .half{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;padding:1.5mm 1mm;line-height:1.25}
+.care-label .half-top{justify-content:space-evenly}
+.care-label .half-bot{justify-content:space-between}
+.care-label .fold-t{border-bottom:1px dashed #999}
+.care-label .fold-b{border-top:1px dashed #999}
+.care-label.over{outline:2px solid #e63946;outline-offset:2px}
+.tpl-a{font-family:"Arial Narrow","Helvetica Neue",Arial,sans-serif;border:1px solid #888;font-size:7pt}
+.tpl-a .comp{white-space:pre-line}
+.tpl-a .meta,.tpl-a .style,.tpl-b .style-b,.tpl-b .rn-ys,.tpl-b .origin-b{white-space:nowrap}
+.tpl-a .meta{font-family:Arial,Helvetica,sans-serif;font-size:1.12em;line-height:1.35}
+.tpl-a .meta .origin{margin-bottom:.6em}
+.tpl-a .care-text{white-space:normal}
+.tpl-a .symbols{display:flex;justify-content:center;gap:.5mm;margin:1mm 0}
+.tpl-a .symbols svg{width:3.9mm;height:3.9mm;flex-shrink:0}
+.tpl-b{font-family:Georgia,"Times New Roman",serif;border:1.5px solid #29abe2;font-size:7pt}
+.tpl-b .fold-t{border-bottom:1.5px dashed #29abe2}
+.tpl-b .fold-b{border-top:1.5px dashed #29abe2}
+.tpl-b .comp-b,.tpl-b .decor-b,.tpl-b .origin-b{font-style:italic;font-size:1.25em;white-space:pre-line}
+.tpl-b .care-text-b{font-style:italic;text-transform:uppercase}
+.tpl-b .style-b{font-style:italic;margin-top:.5em}
+.tpl-b .rn-ys{font-family:Arial,Helvetica,sans-serif;font-size:1.1em;line-height:1.3;margin-top:.6em}
+.care-label .qty,.label-wrap .qty{color:#e63946;font-size:13px;font-weight:bold;margin:6px 0}
 .tpl-c{font-family:Georgia,serif!important;border:1.5px solid #e88ba8;padding:6px 8px!important;text-align:center}
 .tpl-c .brand-logo{font-family:Georgia,serif;font-size:11px;font-weight:bold;margin-bottom:6px;letter-spacing:0.5px}
 .tpl-c .lang-block{margin-bottom:6px;padding-bottom:6px;border-bottom:1.5px dashed #e88ba8}
@@ -70,7 +72,7 @@ textarea{resize:vertical;min-height:50px}
 .chart-item svg{width:36px;height:36px}
 .chart-item span{font-size:10px;color:#4e5969;display:block;margin-top:2px}
 .cat-label{font-size:11px;font-weight:600;color:#165dff;margin:10px 0 4px}
-@media print{.topbar,.panel,.query-panel{display:none!important}.main{display:block;padding:0}.label-sheet{box-shadow:none;padding:0}.care-label{border:none}@page{size:A4;margin:8mm}}
+@media print{body{background:#fff}.topbar,.panel,.query-panel{display:none!important}.main{display:block;padding:0}.label-sheet{box-shadow:none;padding:0}.care-label.over{outline:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:8mm}}
 </style>
 </head>
 <body>
@@ -103,7 +105,7 @@ textarea{resize:vertical;min-height:50px}
       <input type="text" id="origin" value="MADE IN CHINA">
       <div class="row2">
         <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
-        <div><label class="field">Tracking date (MM/YYYY)</label><input type="text" id="ys" value="26/04"></div>
+        <div><label class="field">Tracking date (MM/YYYY)</label><input type="text" id="ys" value="07/2026" placeholder="07/2026"></div>
       </div>
       <label class="check"><input type="checkbox" id="decor"> Show "EXCLUSIVE OF DECORATION" (EdgeHill)</label>
     </div>
@@ -149,8 +151,13 @@ textarea{resize:vertical;min-height:50px}
     </div>
     <div class="group">
       <div class="group-title">Print Setup</div>
-      <label class="field">Label width (mm)</label>
-      <input type="text" id="labelWidth" value="35">
+      <div class="row2">
+        <div><label class="field">Label width (mm)</label><input type="text" id="labelWidth" value="25"></div>
+        <div><label class="field">Label length (mm)</label><input type="text" id="labelLength" value="100"></div>
+      </div>
+      <label class="field">Fold / sewing margin each end (mm)</label>
+      <input type="text" id="foldMm" value="10">
+      <div id="fitWarn" class="fit-warn"></div>
       <label class="field">Quantity (red, blank = hide)</label>
       <input type="text" id="qty" placeholder="e.g. 4250">
       <label class="field">Copies across</label>
@@ -188,7 +195,7 @@ const SYM = {
   wash40:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><text x="20" y="27" text-anchor="middle" font-size="11" font-family="Arial" stroke="none" fill="#000">40</text></svg>',
   washHand:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><path d="M10 34 L30 34" stroke-width="1.5"/></svg>',
   washX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M6 13 L9 31 L31 31 L34 13 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
-  bleachX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z" fill="#000"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
+  bleachX:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/><line x1="6" y1="6" x2="34" y2="34"/><line x1="34" y1="6" x2="6" y2="34"/></svg>',
   bleachOxygen:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/><line x1="12" y1="20" x2="26" y2="30"/><line x1="16" y1="16" x2="30" y2="26"/></svg>',
   bleachAny:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><path d="M20 9 L34 32 L6 32 Z"/></svg>',
   dryLow:'<svg viewBox="0 0 40 40" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="6" width="28" height="28"/><circle cx="20" cy="20" r="7"/><circle cx="20" cy="20" r="2" fill="#000" stroke="none"/></svg>',
@@ -212,52 +219,68 @@ function $(id){return document.getElementById(id)}
 function detectTemplate(s){s=s.toUpperCase();if(s.startsWith('F64EH')||s.startsWith('S74EH'))return'b';if(s.startsWith('F26'))return'c';if(s.startsWith('F64AW')||s.startsWith('F64SL')||s.startsWith('S74AW'))return'a_adv';if(s.startsWith('F64SW')||s.startsWith('F54SH')||s.startsWith('S64SM'))return'a_sym';return'a_adv'}
 function getBrandCode(){const s=$('styleNo').value.toUpperCase();if(s.startsWith('F64SL'))return'S27CC';if(s.startsWith('F64SW')||s.startsWith('S64SM'))return'S27SH';if(s.startsWith('F64AW')||s.startsWith('S74AW'))return'S27AD';if(s.startsWith('F64EH')||s.startsWith('S74EH'))return'S27EC';if(s.startsWith('F26'))return'S27AE';return'S27XX'}
 function trackingLine(){return getBrandCode()+'/YS/'+$('ys').value}
-function symbolsFor(){const w=$('wash').value,b=$('bleach').value,d=$('dry').value,i=$('iron').value,dc=$('dryclean').value;let o=[];if(w.includes('Do not wash'))o.push('washX');else if(w.includes('Hand'))o.push('washHand');else if(w.includes('40'))o.push('wash40');else o.push('wash30');if(b.includes('Do not'))o.push('bleachX');else if(b.includes('non-chlorine'))o.push('bleachOxygen');else o.push('bleachAny');if(d.includes('Do not'))o.push('dryX');else if(d.includes('low'))o.push('dryLow');else if(d.includes('Line'))o.push('lineDry');else o.push('dryMed');if(i.includes('Do not'))o.push('ironX');else if(i.includes('150'))o.push('iron2');else if(i.includes('200'))o.push('iron3');else o.push('iron1');if(dc.includes('Do not dry'))o.push('dcX');else if(dc.includes('Do not wet'))o.push('wetX');else o.push('dc');return o.map(k=>SYM[k]||'').join('')}
+function symbolsFor(){const w=$('wash').value,b=$('bleach').value,d=$('dry').value,i=$('iron').value,dc=$('dryclean').value;let o=[];if(w.includes('Do not wash'))o.push('washX');else if(w.includes('Hand'))o.push('washHand');else if(w.includes('40')||w.includes('60'))o.push('wash40');else o.push('wash30');if(b.includes('Do not'))o.push('bleachX');else if(b.includes('non-chlorine'))o.push('bleachOxygen');else o.push('bleachAny');if(d.includes('Do not'))o.push('dryX');else if(d.includes('low'))o.push('dryLow');else if(d.includes('Line'))o.push('lineDry');else if(d.includes('Flat'))o.push('flatDry');else o.push('dryMed');if(i.includes('Do not'))o.push('ironX');else if(i.includes('150'))o.push('iron2');else if(i.includes('200'))o.push('iron3');else o.push('iron1');if(dc.includes('Do not dry'))o.push('dcX');else if(dc.includes('Do not wet'))o.push('wetX');else o.push('dc');return o.map(k=>SYM[k]||'').join('')}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function render(){
   const tpl=$('templateOverride').value==='auto'?detectTemplate($('styleNo').value):$('templateOverride').value;
-  const w=parseFloat($('labelWidth').value)||35,sc=w/35,n=parseInt($('copies').value);
-  let careArr=[$('wash').value,$('bleach').value,$('dry').value,$('iron').value,$('dryclean').value];if(tpl==='a_adv'||tpl==='a_sym'||tpl==='b')careArr=careArr.map(x=>x.toUpperCase());const comp=$('composition').value,care=careArr.join('<br>');
-  const styleNo=$('styleNo').value,qty=$('qty').value,dec=$('decor').checked;
+  const w=parseFloat($('labelWidth').value)||25,L=parseFloat($('labelLength').value)||100,fm=Math.max(0,parseFloat($('foldMm').value)||0),n=parseInt($('copies').value);
+  let careArr=[$('wash').value,$('bleach').value,$('dry').value,$('iron').value,$('dryclean').value];if(tpl==='a_adv'||tpl==='a_sym'||tpl==='b')careArr=careArr.map(x=>x.toUpperCase());
+  const comp=esc($('composition').value),care=careArr.map(esc).join('<br>');
+  const styleNo=esc($('styleNo').value),qty=esc($('qty').value),dec=$('decor').checked,origin=esc($('origin').value),rn=esc($('rn').value),ys=esc(trackingLine());
   $('brandBadge').innerHTML='<span class="brand-badge">'+({a_adv:'ADV/CC',a_sym:'SH with symbols',b:'EdgeHill',c:'ANDY&EVAN trilingual'}[tpl])+'</span>';
+  const box='width:'+w+'mm;height:'+L+'mm;',tail='<div class="tail fold-t" style="height:'+fm+'mm"></div>',tailB='<div class="tail fold-b" style="height:'+fm+'mm"></div>';
+  const qtyHtml=qty?'<div class="qty">'+qty+'</div>':'';
   let h='';
   for(let c=0;c<n;c++){
     if(tpl==='b'){
       // EdgeHill: top half = comp+decor+origin, bottom half = care+style+rn+ys
-      h+='<div class="care-label tpl-b" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
-      h+='<div class="tail"></div><div class="fold"></div>';
-      h+='<div class="half-top"><div class="comp-b">'+comp+'</div>';
+      h+='<div class="label-wrap"><div class="care-label tpl-b" style="'+box+'">'+tail;
+      h+='<div class="half half-top"><div class="comp-b">'+comp+'</div>';
       if(dec)h+='<div class="decor-b">Exclusive<br>of Decoration</div>';
-      h+='<div class="origin-b">'+$('origin').value+'</div></div>';
-      h+='<div class="fold"></div>';
-      h+='<div class="half-bot"><div class="care-text-b">'+care+'</div><div class="style-b">Style # '+styleNo+'</div><div class="rn-b">RN'+$('rn').value+'</div><div class="ys-b">'+trackingLine()+'</div></div>';
-      h+='<div class="fold"></div><div class="tail"></div>';
-      h+='</div>';
+      h+='<div class="origin-b">'+origin+'</div></div>';
+      h+='<div class="half half-bot fold-b"><div class="care-text-b">'+care+'</div><div class="style-b">Style # '+styleNo+'</div><div class="rn-ys">RN'+rn+'<br>'+ys+'</div></div>';
+      h+=tailB+'</div>'+qtyHtml+'</div>';
     }else if(tpl==='c'){
       // ANDY & EVAN: label1 = EN+FR, label2 = ES+importer
-      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
+      h+='<div class="label-wrap">';
+      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*w/35)+'px;">';
       h+='<div class="brand-logo">ANDY & EVAN&reg;</div>';
-      h+='<div class="lang-block"><div class="comp">'+comp+'</div><div class="care-text">'+careArr.join('<br>')+'</div><div class="sym-row">&#x2647; &#x25B3; &#9673; &#9735; &#9672;</div><div class="origin">'+$('origin').value+'</div><div class="rn">RN#'+$('rn').value+'</div><div class="ys">'+trackingLine()+'</div></div>';
+      h+='<div class="lang-block"><div class="comp">'+comp+'</div><div class="care-text">'+care+'</div><div class="sym-row">&#x2647; &#x25B3; &#9673; &#9735; &#9672;</div><div class="origin">'+origin+'</div><div class="rn">RN#'+rn+'</div><div class="ys">'+ys+'</div></div>';
       h+='<div class="lang-block"><div class="comp">100% Coton</div><div class="care-text">Lavage en machine max. 30°C. Laver avec des couleurs similaires.<br>Cycle doux.<br>Pas de blanchiment.<br>Séchage en tambour autorisé, température modérée 60°C.<br>Repasser au froid de l’intérieur si nécessaire.<br>Pas d’entretien professionnel à sec.</div><div class="origin">Fabriqué en Chine</div><div class="rn">WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div></div>';
       h+='</div>';
-      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;margin-top:6px;">';
+      h+='<div class="care-label tpl-c" style="width:'+w+'mm;font-size:'+(10.5*w/35)+'px;margin-top:6px;">';
       h+='<div class="lang-block"><div class="comp">100% Algodón</div><div class="care-text">Temperatura máxima de lavado 30°C.<br>Lavar con colores similares.<br>Proceso muy suave.<br>No usar lejía.<br>Posible uso de secadora a temperatura baja, máxima temperatura de escape 60°C.<br>Hierro frío desde el interior si es necesario.<br>No limpiar en seco.</div><div class="origin">Hecho en China</div></div>';
       h+='<div class="lang-block"><div class="importer">IMPORTADO POR:<br>IMPORTADORA PRIMEX<br>S.A. DE C.V.<br>BLVD. MAGNOCENTRO<br>NO. 4 SAN FERNANDO<br>LA HERRADURA<br>HUIXQUILUCAN,<br>ESTADO DE MEXICO<br>C.P. 52765<br>RFC: IPR-903070-S70</div></div>';
-      h+='</div>';
+      h+='</div>'+qtyHtml+'</div>';
     }else{
-      // ADV/CC/SH: top half = comp+origin+rn+ys, bottom half = care+[symbols]+style
-      h+='<div class="care-label edge" style="width:'+w+'mm;font-size:'+(10.5*sc)+'px;">';
-      h+='<div class="tail"></div><div class="fold"></div>';
-      h+='<div class="half-top"><div class="comp">'+comp+'</div><div class="origin">'+$('origin').value+'</div><div class="rn">RN#'+$('rn').value+'</div><div class="ys">'+trackingLine()+'</div></div>';
-      h+='<div class="fold"></div>';
-      h+='<div class="half-bot"><div class="care-text">'+care+'</div>';
+      // ADV/CC/SH: top half = comp + (origin/rn/ys), bottom half = care+[symbols]+style
+      h+='<div class="label-wrap"><div class="care-label tpl-a" style="'+box+'">'+tail;
+      h+='<div class="half half-top"><div class="comp">'+comp+'</div><div class="meta"><div class="origin">'+origin+'</div><div class="rn">RN#'+rn+'</div><div class="ys">'+ys+'</div></div></div>';
+      h+='<div class="half half-bot fold-b"><div class="care-text">'+care+'</div>';
       if(tpl==='a_sym')h+='<div class="symbols">'+symbolsFor()+'</div>';
       h+='<div class="style">STYLE '+styleNo+'</div></div>';
-      h+='<div class="fold"></div><div class="tail"></div>';
-      if(qty)h+='<div class="qty">'+qty+'</div>';
-      h+='</div>';
+      h+=tailB+'</div>'+qtyHtml+'</div>';
     }
   }
   $('sheet').innerHTML=h;
+  fitLabels();
+}
+// 每个半区内容超出时逐步缩小字号；缩到最小仍放不下则标红提示
+const MIN_PT=4.5;
+function fitLabels(){
+  let bad=0;
+  document.querySelectorAll('#sheet .care-label').forEach(lab=>{
+    let ok=true;
+    lab.querySelectorAll('.half').forEach(el=>{
+      el.style.fontSize='';
+      let pt=parseFloat(getComputedStyle(el).fontSize)*0.75;
+      const over=()=>el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1;
+      while(over()&&pt>MIN_PT){pt-=0.25;el.style.fontSize=pt+'pt'}
+      if(over())ok=false;
+    });
+    lab.classList.toggle('over',!ok);if(!ok)bad++;
+  });
+  $('fitWarn').textContent=bad?'Content does not fit the label even at '+MIN_PT+'pt: shorten the text or increase label width/length.':'';
 }
 function recommendCare(){const c=$('composition').value.toUpperCase();if(c.includes('WOOL')||c.includes('SILK')){$('wash').value='Hand wash';$('dry').value='Do not tumble dry';}render()}
 function resetForm(){document.querySelectorAll('input[type=text],textarea').forEach(e=>e.value='');$('decor').checked=false;render()}
