@@ -9,13 +9,13 @@
     AGaramondPro-Italic 9pt，洗涤/款号 CataneoBT-Light 6.14pt，RN/YS ArialMT 6.26pt
   - ANDY & EVAN（APPROVED ae ... YS062651.pdf / HOUSE CC .pdf）：两张 28x100mm，
     折边 8mm，品红边框，ArialMT 4.8-6.2pt
-洗护文字、翻译、ISO 符号、批次码均来自 S27 HOUSE CARE LABEL RULE Excel（data/ 目录）。
+追踪码：S27 规则 BATCH & TRACKING CODE = S27品牌代码/工厂代码/YY/MM。
+洗护文字、翻译、ISO 符号均来自 S27 HOUSE CARE LABEL RULE Excel（data/ 目录）。
 """
 import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXCEL = json.load(open(os.path.join(HERE, 'data', 'excel_lists.json'), encoding='utf-8'))
-BATCH = json.load(open(os.path.join(HERE, 'data', 'batch_codes.json'), encoding='utf-8'))
 
 # ---------------- 洗护选项（EN 为标签文字；FR/ES 取自 Excel） ----------------
 # (符号key, EN, FR, ES)
@@ -270,7 +270,6 @@ textarea{resize:vertical;min-height:50px}
       <div class="group-title">Composition &amp; Origin</div>
       <label class="field">Composition (English, one part per line)</label>
       <textarea id="composition">100% Cotton</textarea>
-      <div class="hint" id="compHint"></div>
       <label class="field">Country of origin</label>
       <select id="country"></select>
       <label class="check"><input type="checkbox" id="decor" checked> "Exclusive of Decoration" (EdgeHill)</label>
@@ -279,12 +278,10 @@ textarea{resize:vertical;min-height:50px}
       <div class="group-title">RN &amp; Tracking</div>
       <div class="row2">
         <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
-        <div><label class="field">YS date (YY/MM)</label><input type="text" id="ys" value=""></div>
+        <div><label class="field">Factory code</label><input type="text" id="fty" value="YS"></div>
       </div>
-      <div class="row2" id="batchRow">
-        <div><label class="field">Season code (A&amp;E)</label><input type="text" id="season" value="F26"></div>
-        <div><label class="field">Composition code</label><input type="text" id="compCode" placeholder="auto from Excel"></div>
-      </div>
+      <label class="field">Date (YY/MM)</label><input type="text" id="ys" value="">
+      <div class="hint">Batch &amp; tracking code = S27 brand code / factory code / YY / MM</div>
       <label class="field">Tracking line (blank = auto)</label>
       <input type="text" id="trackOverride" placeholder="">
     </div>
@@ -365,7 +362,6 @@ textarea{resize:vertical;min-height:50px}
 const CARE = ''' + json.dumps(CARE_DATA, ensure_ascii=False) + ''';
 const FABRIC = ''' + json.dumps(FABRIC, ensure_ascii=False) + ''';
 const COUNTRY = ''' + json.dumps(COUNTRY, ensure_ascii=False) + ''';
-const BATCH = ''' + json.dumps(BATCH, ensure_ascii=False) + ''';
 const SYMBOL_CHART = ''' + json.dumps(SYMBOL_CHART, ensure_ascii=False) + r''';
 
 // ---------- 模板参数（实测自批复模板） ----------
@@ -461,9 +457,6 @@ function translateComp(txt,lang){ // lang 1=FR 2=ES
   }).join('\n');
   return {text,missing};
 }
-function normComp(s,syn){s=s.toLowerCase();if(syn)s=s.replace(/spandex/g,'elastane');return s.replace(/[^a-z0-9%]/g,'')}
-// 先精确匹配（Excel 里 Spandex 与 Elastane 编码不同），找不到再把 Spandex/Elastane 视为同义
-function lookupBatch(comp){for(const syn of [false,true]){const n=normComp(comp,syn);if(!n)return '';for(const [c,code] of BATCH){if(normComp(c,syn)===n)return code}}return ''}
 function countryRow(){return COUNTRY[+$('country').value]||COUNTRY[0]}
 function fixAbbr(s){return s.replace(/\bUsa\b/,'USA')}
 function originEN(){return 'Made in '+fixAbbr(titleCase(countryRow()[0]))}
@@ -474,15 +467,13 @@ let lastTpl=null;
 function applyTemplateDefaults(tpl){const t=TPL[tpl];$('labelWidth').value=t.w;$('labelLength').value=t.l;$('foldMm').value=t.fold;$('rn').value=t.rn}
 function trackingLine(tpl){
   const o=$('trackOverride').value.trim();if(o)return o;
-  const ys=$('ys').value.trim();
-  if(tpl==='c'){const code=$('compCode').value.trim()||lookupBatch($('composition').value)||'???';return $('season').value.trim()+code+'/YS/'+ys}
-  return brandCode($('styleNo').value)+'/YS/'+ys;
+  // S27 规则：BATCH & TRACKING CODE = S27CC/SH/AD/EC/AE + / 工厂代码 / YY / MM（五个品牌相同）
+  return brandCode($('styleNo').value)+'/'+$('fty').value.trim()+'/'+$('ys').value.trim();
 }
 
 function render(){
   const tpl=curTpl();
   if(tpl!==lastTpl){applyTemplateDefaults(tpl);lastTpl=tpl}
-  $('batchRow').style.display=tpl==='c'?'':'none';
   $('brandBadge').innerHTML='<span class="brand-badge">'+esc(TPL[tpl].name)+' · '+brandCode($('styleNo').value)+'</span>';
   const w=parseFloat($('labelWidth').value)||TPL[tpl].w, L=parseFloat($('labelLength').value)||TPL[tpl].l, fm=Math.max(0,parseFloat($('foldMm').value)||0), n=parseInt($('copies').value);
   const compRaw=$('composition').value.replace(/\s+$/,''), styleNo=esc($('styleNo').value.trim()), qty=esc($('qty').value.trim()), rn=esc($('rn').value.trim());
@@ -531,8 +522,6 @@ function render(){
     }
   }
   $('sheet').innerHTML=h;
-  if(tpl==='c'){const code=lookupBatch(compRaw);$('compHint').textContent=code?'Batch composition code (Excel): '+code:'Composition not found in the Excel BATCH CODE sheet – enter the code manually.'}
-  else $('compHint').textContent='';
   fitLabels(warns);
 }
 
