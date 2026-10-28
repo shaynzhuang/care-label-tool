@@ -30,7 +30,7 @@ def X(key, cell, label=None, en=None):
 WASH = [
     X("washX", "K3"), X("washHand", "K4"),
     # 0921 批复 / 统一要求：标签印 MACHINE WASH COLD WITH LIKE COLORS GENTLE CYCLE（Excel K5 去掉句号）
-    X("w30vm", "K5", en="Machine wash cold with like colors gentle cycle"),
+    X("w30vm", "K5"),
     X("w30m", "K6", "Mild Process (30°C)"), X("w30n", "K7", "Normal Process (30°C)"),
     X("w40vm", "K8", "Very mild process (40°C)"), X("w40m", "K9", "Mild Process (40°C)"), X("w40n", "K10", "Normal Process (40°C)"),
     X("w50m", "K11", "Mild Process (50°C)"), X("w50n", "K12", "Normal Process (50°C)"),
@@ -179,7 +179,7 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c .logo sup{font-size:.5em;letter-spacing:0;vertical-align:.9em}
 .tpl-c .c-comp{font-size:calc(6.18pt * var(--k));line-height:1.15;white-space:pre-line}
 .tpl-c .c-comp-es{font-size:calc(4.85pt * var(--k));line-height:1.2;white-space:pre-line}
-.tpl-c .c-care-en{font-size:calc(4.95pt * var(--k));line-height:1.117;text-transform:capitalize}
+.tpl-c .c-care-en{font-size:calc(4.95pt * var(--k));line-height:1.117;text-transform:none}
 .tpl-c .c-care-fr{font-size:calc(5.06pt * var(--k));line-height:1.01}
 .tpl-c .c-care-es{font-size:calc(5.24pt * var(--k));line-height:1.146}
 .tpl-c .c-meta{font-size:calc(4.95pt * var(--k));line-height:1.15}
@@ -287,8 +287,8 @@ body.batch-mode .batch-only{display:inline-block}
         <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
         <div><label class="field">Factory code</label><input type="text" id="fty" value="YS14"></div>
       </div>
-      <label class="field">Date (YY/MM)</label><input type="text" id="ys" value="">
-      <div class="hint">Batch &amp; tracking code = brand code / factory code / YY / MM (ANDY &amp; EVAN uses SS27AE)</div>
+      <label class="field">PO date (YY/MM)</label><input type="text" id="ys" value="">
+      <div class="hint">Batch &amp; tracking code = brand code / factory code / YY / MM</div>
       <label class="field">Tracking line (blank = auto)</label>
       <input type="text" id="trackOverride" placeholder="">
     </div>
@@ -336,7 +336,7 @@ body.batch-mode .batch-only{display:inline-block}
       <label class="field">Quantity (red, blank = hide)</label>
       <input type="text" id="qty" placeholder="e.g. 4250">
       <label class="field">Copies</label>
-      <select id="copies"><option>1</option><option>2</option><option selected>4</option><option>6</option><option>8</option></select>
+      <select id="copies"><option selected>1</option><option>2</option><option>4</option><option>6</option><option>8</option></select>
       <div id="fitWarn" class="warn"></div>
     </div>
     </div>
@@ -384,7 +384,7 @@ const TPL = {
   a_adv:{name:'ADV / CC', w:25, l:99, fold:10, rn:'58909'},
   a_sym:{name:'Scene & Heard (symbols)', w:25, l:99, fold:10, rn:'58909'},
   b:{name:'EdgeHill', w:25, l:99, fold:10, rn:'58909'},
-  c:{name:'ANDY & EVAN', w:28, l:100, fold:8, rn:'136762'}
+  c:{name:'ANDY & EVAN', w:25, l:100, fold:7, rn:'136762'}
 };
 
 // ---------- ISO 3758 符号（按 Excel 图例绘制，viewBox 40x40） ----------
@@ -483,7 +483,7 @@ function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
 function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
 function originES(c){return 'Hecho en '+titleCase(c[2])}
 // 追踪码：品牌代码/供应商代码/YY/MM；ANDY & EVAN 使用 SS27AE。
-function trackCode(brand){const prefix=brand==='S27AE'?'SS27AE':brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
+function trackCode(brand){const prefix=brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
 
 /* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
    tpl, w, L, fm, comp, care(rows), syms(html), country(row), rn, track, decor,
@@ -503,7 +503,7 @@ function labelHTML(d){
     h+='<div class="dash-line"></div>'+tail+'</div>'+belowDiv+'</div>';
   }else if(d.tpl==='c'){
     const fr=translateComp(d.comp,1),es=translateComp(d.comp,2);
-    const en=care.map(x=>esc(x[1].replace(/\./g,''))).join('<br>'), frc=care.map(x=>esc(x[2])).filter(Boolean).join('<br>'), esc_=care.map(x=>esc(x[3])).filter(Boolean).join('<br>');
+    const en=care.map(x=>esc(x[1])).join('<br>'), frc=care.map(x=>esc(x[2])).filter(Boolean).join('<br>'), esc_=care.map(x=>esc(x[3])).filter(Boolean).join('<br>');
     h+='<div class="label-wrap">';
     // 第一张：EN + FR
     h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
@@ -511,7 +511,7 @@ function labelHTML(d){
     h+='<div class="c-care-en">'+en+'</div><div class="symbols">'+d.syms+'</div>';
     h+='<div class="c-meta">'+esc(fixAbbr(titleCase(originEN(d.country))))+'<br>RN#'+rn+'<br>'+track+'</div></div><div class="dash-line"></div>';
     h+='<div class="sec s2"><div class="c-comp">'+esc(fr.text)+'</div><div class="sp"></div><div class="c-care-fr">'+frc+'</div><div class="gap1"></div>';
-    h+='<div class="c-addr">'+esc(originFR(d.country))+'<br>WPL 11590<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div><div class="sp"></div></div>';
+    h+='<div class="c-addr">'+esc(originFR(d.country))+'<br>RN#165550<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div><div class="sp"></div></div>';
     h+='<div class="dash-line"></div>'+tail+'</div>';
     // 第二张：ES + 进口商
     h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
@@ -719,7 +719,7 @@ function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('pr
 
 // ---------- 初始化 ----------
 (function init(){
-  const d=new Date();$('ys').value=String(d.getFullYear()).slice(2)+'/'+String(d.getMonth()+1).padStart(2,'0');
+  $('ys').value='';$('ys').placeholder='PO YY/MM';
   $('country').innerHTML=COUNTRY.map((c,i)=>'<option value="'+i+'"'+(c[0]==='CHINA'?' selected':'')+'>'+esc(fixAbbr(titleCase(c[0])))+'</option>').join('');
   $('extras').innerHTML=CARE.extras.map((x,i)=>'<label class="check"><input type="checkbox" value="'+i+'"> '+esc(x[1])+'</label>').join('');
   // 参考区
@@ -775,12 +775,12 @@ if(location.pathname.startsWith('/care-label-generator'))document.addEventListen
  const box=document.createElement('div');box.className='group';box.innerHTML='<div class="group-title">手工添加多款标签</div><div class="hint">填好一款后添加，再填写下一款。列表中的标签仅在保存修改时更新。</div><div class="btn-row"><button type="button" class="btn" id="manualSave">添加到列表</button><button type="button" class="btn ghost" id="manualNew">结束编辑，填写新款</button><button type="button" class="btn ghost" id="manualPrint">打印列表 / 保存 PDF</button></div><div id="manualList"></div><div id="manualStatus" role="status"></div>';
  document.querySelector('.panel').prepend(box);
  const output=document.createElement('div');output.id='manualOutput';document.body.appendChild(output);
- const style=document.createElement('style');style.textContent='#manualOutput{display:none}#manualList>div{padding:8px 0;border-bottom:1px solid #ddd}#manualList button{margin-left:8px}@media print{body.manual-print>*{display:none!important}body.manual-print>#manualOutput{display:block!important}#manualOutput .manual-page{break-after:page;display:flex;gap:20px;flex-wrap:wrap;padding:8mm}#manualOutput .manual-page:last-child{break-after:auto}}';document.head.appendChild(style);
+ const style=document.createElement('style');style.textContent='#manualOutput{display:none}#manualList>div{padding:8px 0;border-bottom:1px solid #ddd}#manualList button{margin-left:8px}@media print{body.manual-print>*{display:none!important}body.manual-print>#manualOutput{display:block!important}#manualOutput .manual-page{break-after:page;break-inside:avoid;display:flex;align-items:flex-start;gap:5mm;flex-wrap:nowrap;padding:0}#manualOutput .manual-page:last-child{break-after:auto}}';document.head.appendChild(style);
  const controls=()=>[...document.querySelectorAll('#single input,#single select,#single textarea')];
  function draw(){const list=document.getElementById('manualList');list.replaceChildren();rows.forEach((r,i)=>{const line=document.createElement('div'),name=document.createElement('span');name.textContent=(i+1)+'. '+r.name+' · '+r.copies+'份'+(editing===i?'（编辑中）':'');line.appendChild(name);for(const [label,fn] of [['编辑',()=>{if(BATCH)exitBatch();editing=i;const fields=controls();const tpl=fields.find(e=>e.id==='templateOverride');if(tpl)tpl.value=r.state.templateOverride.value;const st=fields.find(e=>e.id==='styleNo');if(st)st.value=r.state.styleNo.value;render();fields.forEach(e=>{const v=r.state[e.id];if(v){e.value=v.value;e.checked=v.checked}});document.querySelectorAll('#extras input').forEach((e,j)=>e.checked=!!r.extras[j]);render();draw();}],['删除',()=>{rows.splice(i,1);if(editing===i)editing=-1;else if(editing>i)editing--;draw();}]]){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;line.appendChild(b)}list.appendChild(line)});document.getElementById('manualSave').textContent=editing<0?'添加到列表':'保存修改';}
  document.getElementById('manualSave').onclick=()=>{if(BATCH){alert('请先返回单个标签，再手工添加。');return}const name=$('styleNo').value.trim();if(!name||!$('composition').value.trim()){alert('请填写款号和成分。');return}render();if($('sheet').querySelector('.over')){alert('标签内容超出尺寸，请先调整后再添加。');return}const state={};controls().forEach(e=>{if(e.id)state[e.id]={value:e.value,checked:e.checked}});const row={name,state,extras:[...document.querySelectorAll('#extras input')].map(e=>e.checked),html:$('sheet').innerHTML,copies:$('copies').value,ae:$('sheet').classList.contains('page-ae')};if(editing<0)rows.push(row);else rows[editing]=row;editing=-1;draw();document.getElementById('manualStatus').textContent='已保存，共 '+rows.length+' 款。可修改输入后继续添加。';};
  document.getElementById('manualNew').onclick=()=>{editing=-1;resetForm();draw()};
- document.getElementById('manualPrint').onclick=()=>{if(!rows.length){alert('请先添加标签。');return}output.innerHTML=rows.map(r=>'<div class="manual-page '+(r.ae?'page-ae':'')+'">'+r.html+'</div>').join('');document.body.classList.add('manual-print');window.print();};
+ document.getElementById('manualPrint').onclick=()=>{if(!rows.length){alert('请先添加标签。');return}const labels=[];rows.forEach(r=>{const holder=document.createElement('div');holder.innerHTML=r.html;holder.querySelectorAll('.care-label').forEach(label=>{const wrap=document.createElement('div');wrap.className='label-wrap';wrap.appendChild(label.cloneNode(true));labels.push(wrap)})});output.replaceChildren();for(let i=0;i<labels.length;i+=5){const page=document.createElement('div');page.className='manual-page';labels.slice(i,i+5).forEach(label=>page.appendChild(label));output.appendChild(page)}document.body.classList.add('manual-print');window.print();};
  window.addEventListener('afterprint',()=>document.body.classList.remove('manual-print'));
  draw();
 })();
