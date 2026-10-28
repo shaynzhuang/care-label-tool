@@ -482,7 +482,7 @@ function fixAbbr(s){return s.replace(/\bUsa\b/,'USA')}
 function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
 function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
 function originES(c){return 'Hecho en '+titleCase(c[2])}
-// 追踪码：品牌代码/供应商代码/YY/MM；ANDY & EVAN 使用 SS27AE。
+// 追踪码：品牌代码/供应商代码/PO 年/PO 月。
 function trackCode(brand){const prefix=brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
 
 /* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
