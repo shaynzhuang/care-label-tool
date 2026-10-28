@@ -9,7 +9,7 @@
     AGaramondPro-Italic 9pt，洗涤/款号 CataneoBT-Light 6.14pt，RN/YS ArialMT 6.26pt
   - ANDY & EVAN（APPROVED ae ... YS062651.pdf / HOUSE CC .pdf）：两张 28x100mm，
     折边 8mm，品红边框，ArialMT 4.8-6.2pt
-追踪码：S27 规则 BATCH & TRACKING CODE = S27品牌代码/工厂代码/YY/MM。
+追踪码：品牌代码/供应商代码/YY/MM；ANDY & EVAN 前缀使用 SS27AE，其余品牌使用对应 S27 代码。
 洗护文字、翻译、ISO 符号均来自 S27 HOUSE CARE LABEL RULE Excel（data/ 目录）。
 """
 import json, os
@@ -262,6 +262,8 @@ body.batch-mode .batch-only{display:inline-block}
       <label class="field">STYLE #</label>
       <input type="text" id="styleNo" value="F64SW840B/J">
       <div id="brandBadge"></div>
+      <label class="field">Brand (blank = auto from style number)</label>
+      <select id="brandOverride"><option value="">Auto from style number</option></select>
       <label class="field">Override Template</label>
       <select id="templateOverride">
         <option value="auto">Auto detect</option>
@@ -283,10 +285,10 @@ body.batch-mode .batch-only{display:inline-block}
       <div class="group-title">RN &amp; Tracking</div>
       <div class="row2">
         <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
-        <div><label class="field">Factory code</label><input type="text" id="fty" value="YS"></div>
+        <div><label class="field">Factory code</label><input type="text" id="fty" value="YS14"></div>
       </div>
       <label class="field">Date (YY/MM)</label><input type="text" id="ys" value="">
-      <div class="hint">Batch &amp; tracking code = S27 brand code / factory code / YY / MM</div>
+      <div class="hint">Batch &amp; tracking code = brand code / factory code / YY / MM (ANDY &amp; EVAN uses SS27AE)</div>
       <label class="field">Tracking line (blank = auto)</label>
       <input type="text" id="trackOverride" placeholder="">
     </div>
@@ -446,7 +448,7 @@ function detectTemplate(s){s=s.toUpperCase().trim();if(/^(F64EH|S74EH)/.test(s))
 function brandCode(s){s=s.toUpperCase();if(/^F64SL/.test(s))return'S27CC';if(/^(F64SW|F54SH|S64SM|F64SH|S74SH)/.test(s))return'S27SH';if(/^(F64AW|S74AW)/.test(s))return'S27AD';if(/^(F64EH|S74EH)/.test(s))return'S27EC';if(/^F26/.test(s))return'S27AE';return'S27XX'}
 const BRANDS={S27CC:{name:'CLASS CLUB',tpl:'a_adv'},S27SH:{name:'SCENE & HEARD',tpl:'a_sym'},S27AD:{name:'ADVENTUREWEAR',tpl:'a_adv'},S27EC:{name:'EDGEHILL',tpl:'b'},S27AE:{name:'ANDY & EVAN',tpl:'c'}};
 const CATS=['wash','bleach','tumble','natural','iron','dryclean','wet'];
-function curTpl(){return $('templateOverride').value==='auto'?detectTemplate($('styleNo').value):$('templateOverride').value}
+function curTpl(){const override=$('templateOverride').value;if(override!=='auto')return override;const brand=$('brandOverride').value;return (BRANDS[brand]||{}).tpl||detectTemplate($('styleNo').value)}
 
 // 洗护选择 sel = {wash:i, bleach:i, ..., extras:[i]}
 function formSel(){const o={};CATS.forEach(c=>o[c]=+$(c).value);o.extras=[...document.querySelectorAll('#extras input:checked')].map(c=>+c.value);return o}
@@ -480,8 +482,8 @@ function fixAbbr(s){return s.replace(/\bUsa\b/,'USA')}
 function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
 function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
 function originES(c){return 'Hecho en '+titleCase(c[2])}
-// S27 规则：BATCH & TRACKING CODE = S27CC/SH/AD/EC/AE + / 工厂代码 / YY / MM（五个品牌相同）
-function trackCode(brand){return brand+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
+// 追踪码：品牌代码/供应商代码/YY/MM；ANDY & EVAN 使用 SS27AE。
+function trackCode(brand){const prefix=brand==='S27AE'?'SS27AE':brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
 
 /* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
    tpl, w, L, fm, comp, care(rows), syms(html), country(row), rn, track, decor,
@@ -531,7 +533,7 @@ function labelHTML(d){
 let lastTpl=null;
 function applyTemplateDefaults(tpl){const t=TPL[tpl];$('labelWidth').value=t.w;$('labelLength').value=t.l;$('foldMm').value=t.fold;$('rn').value=t.rn}
 function render(){
-  const tpl=curTpl(), brand=brandCode($('styleNo').value);
+  const tpl=curTpl(), brand=$('brandOverride').value||(tpl==='c'?'S27AE':brandCode($('styleNo').value));
   if(tpl!==lastTpl){applyTemplateDefaults(tpl);lastTpl=tpl}
   $('brandBadge').innerHTML='<span class="brand-badge">'+esc(TPL[tpl].name)+' · '+brand+'</span>';
   const sel=formSel(), comp=$('composition').value.replace(/\s+$/,''), qty=$('qty').value.trim();
@@ -564,7 +566,7 @@ function fitLabel(lab){
 }
 function fitAll(root){let bad=0,shrunk=false;root.querySelectorAll('.care-label').forEach(l=>{const r=fitLabel(l);if(!r.ok)bad++;if(r.shrunk)shrunk=true});return {bad,shrunk}}
 
-function resetForm(){$('composition').value='';$('styleNo').value='';$('qty').value='';$('trackOverride').value='';render()}
+function resetForm(){$('composition').value='';$('styleNo').value='';$('brandOverride').value='';$('templateOverride').value='auto';$('qty').value='';$('trackOverride').value='';render()}
 
 // =====================================================================
 // 批量：上传 Excel → 按「品牌 + 性别 + 成分 + 洗护 + 产地」合并 → 结果表 + 标签
@@ -669,7 +671,7 @@ function renderBatch(){
   B.groups.forEach(g=>{
     const t=TPL[g.tpl], merged=g.items.length>1;
     const styleLine=merged&&g.tpl!=='c'?g.styles.map(esc).join('<br>'):esc(g.styles[0]);
-    const qtyText='数量：'+(merged?g.qtys.map(fmtQ).join(' + ')+' = '+g.total:g.total);
+    const qtyText=B.hideLabelQuantity?'':'数量：'+(merged?g.qtys.map(fmtQ).join(' + ')+' = '+g.total:g.total);
     const d={tpl:g.tpl,w:t.w,L:t.l,fm:t.fold,comp:g.comp,care:careOf(g.sel),syms:symsOf(g.sel),country:COUNTRY[g.country],rn:t.rn,track:g.track,decor:$('decor').checked,
       styleLine,qtyText,below:(merged||g.tpl==='c')?g.styles.map(esc).join(' + '):''};
     if(g.brand!==lastBrand){if(lastBrand!==null)h+='</div></div>';h+='<div class="brand-sec'+(g.tpl==='c'?' page-ae':'')+'"><div class="brand-head">'+esc(brandName(g.brand))+' ('+esc(g.brand)+')</div><div class="label-sheet batch-sheet">';lastBrand=g.brand}
@@ -742,6 +744,8 @@ function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('pr
   document.querySelectorAll('#single input,#single select,#single textarea').forEach(e=>{e.addEventListener('input',render);e.addEventListener('change',render)});
   // 批量
   $('presetBrand').innerHTML=Object.entries(BRANDS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+'</option>').join('');
+  $('brandOverride').innerHTML='<option value="">Auto from style number</option>'+Object.entries(BRANDS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+' ('+k+')</option>').join('');
+  $('brandOverride').addEventListener('change',render);
   $('presetBrand').addEventListener('change',renderPresetInfo);renderPresetInfo();
   $('presetSave').addEventListener('click',()=>{savePreset($('presetBrand').value,formSel());renderPresetInfo();if(BATCH)$('batchFile').dispatchEvent(new Event('change'))});
   $('presetReset').addEventListener('click',()=>{resetPresets();renderPresetInfo();if(BATCH)$('batchFile').dispatchEvent(new Event('change'))});
@@ -758,6 +762,10 @@ function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('pr
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
   render();
 })();
+</script>
+<script>
+// Load the tracker connector only when this standalone generator is served inside Sample Tracker.
+if(location.pathname.startsWith('/care-label-generator'))document.addEventListener('DOMContentLoaded',function(){const s=document.createElement('script');s.src='/care-label-generator/tracker-bridge.js?v=1';document.body.appendChild(s)},{once:true});
 </script>
 </body>
 </html>'''
