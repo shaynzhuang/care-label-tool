@@ -9,6 +9,21 @@ function translate(text) {
  for(const [a,b] of Object.entries(parts)) s=s.split(a).join(b);
  return text.replace(text.trim(),s);
 }
-const script = `\n<script>\n// 仅翻译操作界面，保留标签数据及表单值。\nconst ZH_WORDS=${JSON.stringify(words)};\nconst words=ZH_WORDS;\n${translate.toString()}\nfunction translateInterface(){document.querySelectorAll('.topbar,.panel').forEach(root=>{const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode()){if(!['SCRIPT','STYLE','TEXTAREA'].includes(n.parentElement.tagName)&&!n.parentElement.closest('#qFabricResult,#qCareResult,#presetInfo'))n.nodeValue=translate(n.nodeValue);}root.querySelectorAll('optgroup').forEach(el=>el.label=translate(el.label));});}\ntranslateInterface();\ndocument.title='水洗标生成器（中文版）';\ndocument.documentElement.lang='zh-CN';\ndocument.getElementById('qFabric').placeholder='输入面料英文，如 cotton、spandex…';\ndocument.getElementById('qty').placeholder='例如：4250';\n</script>\n`;
-fs.writeFileSync('水洗标生成器-中文版.html', source.replace('</body>',script+'</body>'));
-console.log('已生成中文版');
+
+const runtime = `
+(function(){
+const words=DICTIONARY;
+TRANSLATOR
+let language=decodeURIComponent(location.pathname).includes('中文版')?'zh':'en';
+const originals=new WeakMap();
+const wrap=document.createElement('label');wrap.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:13px';wrap.innerHTML='Language / 语言 <select id="uiLanguage" style="width:auto"><option value="zh">中文</option><option value="en">English</option></select>';
+document.querySelector('.topbar>div:last-child').prepend(wrap);const picker=document.getElementById('uiLanguage');picker.value=language;
+function apply(){observer.disconnect();document.querySelectorAll('.topbar,.panel').forEach(root=>{const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode()){if(n.parentElement.closest('#uiLanguage,script,style,textarea,#qFabricResult,#qCareResult,#presetInfo,#manualList,#manualStatus'))continue;let entry=originals.get(n);if(!entry||n.nodeValue!==entry.shown){entry={base:n.nodeValue,shown:n.nodeValue};originals.set(n,entry)}n.nodeValue=language==='zh'?translate(entry.base):entry.base;entry.shown=n.nodeValue;}});document.documentElement.lang=language==='zh'?'zh-CN':'en';document.title=language==='zh'?'水洗标生成器':'Care Label Generator';observer.observe(document.body,{childList:true,subtree:true,characterData:true});}
+const observer=new MutationObserver(apply);picker.addEventListener('change',()=>{language=picker.value;apply()});apply();
+})();
+`.replace('DICTIONARY',JSON.stringify(words)).replace('TRANSLATOR',translate.toString());
+let html=source.replace(/<!-- UI_LANGUAGE_START -->[\s\S]*?<!-- UI_LANGUAGE_END -->/g,'');
+html=html.replace('</body>','<!-- UI_LANGUAGE_START --><script>'+runtime+'</script><!-- UI_LANGUAGE_END --></body>');
+fs.writeFileSync('水洗标生成器.html',html);
+fs.writeFileSync('水洗标生成器-中文版.html',html);
+console.log('已生成统一界面，支持中英文切换');
