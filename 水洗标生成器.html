@@ -79,15 +79,15 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c{font-family:Arial,"Liberation Sans",Helvetica,sans-serif;border:.25pt solid #ec008c}
 .tpl-c .dash-line{height:0;border-top:.567pt dashed #e73f97;flex-shrink:0}
 .tpl-c .sec{padding:0 1.5mm}
-.tpl-c .logo{font-family:"Times New Roman",Times,serif;font-size:calc(7.6pt * var(--k));letter-spacing:.2em;line-height:1;margin-top:.5mm;white-space:nowrap}
+.tpl-c .logo{font-family:"Times New Roman",Times,serif;font-size:calc(6.3pt * var(--k));letter-spacing:.08em;line-height:1;margin-top:.5mm;white-space:nowrap}
 .tpl-c .logo sup{font-size:.5em;letter-spacing:0;vertical-align:.9em}
 .tpl-c .c-comp{font-size:calc(6.3pt * var(--k));line-height:1.15;white-space:pre-line}
 .tpl-c .c-comp-es{font-size:calc(4.95pt * var(--k));line-height:1.2;white-space:pre-line}
 .tpl-c .c-care-en{font-size:calc(4.95pt * var(--k));line-height:1.117;text-transform:none}
-.tpl-c .c-care-fr{font-size:calc(4.95pt * var(--k));line-height:1.12}
+.tpl-c .c-care-fr{font-size:calc(4.63pt * var(--k));line-height:1.12}
 .tpl-c .c-care-es{font-size:calc(4.95pt * var(--k));line-height:1.12}
 .tpl-c .c-meta{font-size:calc(4.95pt * var(--k));line-height:1.15}
-.tpl-c .c-addr{font-size:calc(4.95pt * var(--k));line-height:1.12;letter-spacing:normal}
+.tpl-c .c-addr{font-size:calc(4.63pt * var(--k));line-height:1.12;letter-spacing:normal}
 .tpl-c .c-imp{font-size:calc(4.95pt * var(--k));line-height:1.61}
 .tpl-c .symbols{margin:.8mm 0 .7mm}
 .tpl-c .symbols svg{width:3mm;height:3mm}
@@ -97,6 +97,12 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c .s4{padding-top:5.1mm}
 .tpl-c .gap1{flex:0 0 1.9mm}
 .tpl-c .gap2{flex:0 0 2.2mm}
+/* 成品留白不能依赖剩余空间；内容超限时保留警告，不再挤掉段间距。 */
+.tpl-c .c-comp + .sp,.tpl-c .c-comp-es + .sp{flex:0 0 2mm;min-height:2mm}
+.tpl-c .c-comp,.tpl-c .c-comp-es,.tpl-c .c-care-en,.tpl-c .c-care-fr,.tpl-c .c-care-es,.tpl-c .c-meta,.tpl-c .c-addr,.tpl-c .c-imp{width:100%;text-align:center}
+.tpl-c{border-color:#c5c9ce}
+.tpl-c .dash-line{border-color:#c5c9ce}
+@media print{.tpl-c{border-color:transparent}.tpl-c .dash-line{border-color:transparent}}
 
 .btn.small{padding:5px 10px;font-size:12px;margin:6px 6px 0 0}
 .btn-row{display:flex;flex-wrap:wrap}
@@ -727,6 +733,16 @@ if(location.pathname.startsWith('/care-label-generator'))document.addEventListen
  draw();
 })();
 
+</script>
+
+<script>
+(function(){
+ const control=document.createElement('label');control.style.cssText='display:inline-flex;gap:6px;align-items:center;font-size:13px;margin-right:12px';control.innerHTML='预览倍率 <select id="previewScale" style="width:auto"><option value="1">100%</option><option value="2" selected>200%</option><option value="3">300%</option><option value="4">400%</option></select>';
+ document.querySelector('.topbar>div:last-child').prepend(control);
+ const note=document.createElement('div');note.className='print-size-note';note.style.cssText='font-size:13px;color:#4e5969;padding:12px 24px;background:#fff';note.textContent='预览已放大，便于核对文字。打印按宽度/长度（毫米）输出；请在打印窗口选择「实际大小 / 100%」，关闭适应页面及页眉页脚。AE默认25×100毫米，两端各7毫米缝口。';document.querySelector('.topbar').after(note);
+ const style=document.createElement('style');style.textContent='.label-sheet{zoom:var(--preview-scale,2)}.preview-area{overflow:auto;justify-content:flex-start}@media print{.label-sheet{zoom:1!important}.print-size-note{display:none!important}}';document.head.appendChild(style);
+ document.getElementById('previewScale').addEventListener('change',function(){document.documentElement.style.setProperty('--preview-scale',this.value)});
+})();
 </script>
 <!-- UI_LANGUAGE_START --><script>
 (function(){
