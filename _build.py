@@ -171,34 +171,30 @@ textarea{resize:vertical;min-height:50px}
 .tpl-b .style-b{font-size:calc(6.14pt * var(--k));line-height:1.186}
 .tpl-b .rn-ys{font-family:Arial,"Liberation Sans",Helvetica,sans-serif;font-style:normal;font-size:calc(6.26pt * var(--k));line-height:1.22}
 
-/* ===== 模板C：ANDY & EVAN 两张 28x100mm ===== */
-.tpl-c{font-family:Arial,"Liberation Sans",Helvetica,sans-serif;border:.25pt solid #ec008c}
-.tpl-c .dash-line{height:0;border-top:.567pt dashed #e73f97;flex-shrink:0}
-.tpl-c .sec{padding:0 1.5mm}
-.tpl-c .logo{font-family:"Times New Roman",Times,serif;font-size:calc(6.3pt * var(--k));letter-spacing:.08em;line-height:1;margin-top:.5mm;white-space:nowrap}
-.tpl-c .logo sup{font-size:.5em;letter-spacing:0;vertical-align:.9em}
-.tpl-c .c-comp{font-size:calc(6.3pt * var(--k));line-height:1.15;white-space:pre-line}
-.tpl-c .c-comp-es{font-size:calc(4.95pt * var(--k));line-height:1.2;white-space:pre-line}
-.tpl-c .c-care-en{font-size:calc(4.95pt * var(--k));line-height:1.117;text-transform:none}
-.tpl-c .c-care-fr{font-size:calc(4.63pt * var(--k));line-height:1.12}
-.tpl-c .c-care-es{font-size:calc(4.95pt * var(--k));line-height:1.12}
-.tpl-c .c-meta{font-size:calc(4.95pt * var(--k));line-height:1.15}
-.tpl-c .c-addr{font-size:calc(4.63pt * var(--k));line-height:1.12;letter-spacing:normal}
-.tpl-c .c-imp{font-size:calc(4.95pt * var(--k));line-height:1.61}
-.tpl-c .symbols{margin:.8mm 0 .7mm}
-.tpl-c .symbols svg{width:3mm;height:3mm}
-.tpl-c .s1{padding-top:1.5mm;padding-bottom:1.5mm}
-.tpl-c .s2{padding-top:1.5mm;padding-bottom:1.5mm}
-.tpl-c .s3{padding-top:4.1mm;padding-bottom:2.8mm}
-.tpl-c .s4{padding-top:5.1mm}
-.tpl-c .gap1{flex:0 0 1.9mm}
-.tpl-c .gap2{flex:0 0 2.2mm}
-/* 成品留白不能依赖剩余空间；内容超限时保留警告，不再挤掉段间距。 */
-.tpl-c .c-comp + .sp,.tpl-c .c-comp-es + .sp{flex:0 0 2mm;min-height:2mm}
-.tpl-c .c-comp,.tpl-c .c-comp-es,.tpl-c .c-care-en,.tpl-c .c-care-fr,.tpl-c .c-care-es,.tpl-c .c-meta,.tpl-c .c-addr,.tpl-c .c-imp{width:100%;text-align:center}
-.tpl-c{border-color:#c5c9ce}
-.tpl-c .dash-line{border-color:#c5c9ce}
-@media print{.tpl-c{border-color:transparent}.tpl-c .dash-line{border-color:transparent}}
+/* AE：固定分区与排版节奏，内容增加时自然加长，不压缩文字。 */
+.tpl-c{font-family:Arial,sans-serif;border:.25pt solid #ff00a8;height:auto!important;overflow:visible}
+.tpl-c .dash-line{height:0;border-top:.25pt dashed #ff00a8;flex-shrink:0}
+.tpl-c .sec{height:auto;min-height:var(--sec);flex:0 0 auto;overflow:visible;padding:1.5mm 2mm;align-items:stretch}
+.tpl-c .sec>*{position:static;flex:0 0 auto;width:100%;max-width:100%;margin:0;text-align:center;letter-spacing:normal}
+.tpl-c .sp{display:none}
+.tpl-c .logo{height:3.35mm;margin-bottom:2mm}
+.tpl-c .logo img{width:100%;height:100%;object-fit:contain}
+.tpl-c .c-comp{font-size:6.3pt;line-height:7pt;white-space:pre-line;margin-bottom:3mm}
+.tpl-c .c-comp.multi{font-size:4.95pt;line-height:5.5pt}
+.tpl-c .c-comp-es{font-size:4.95pt;line-height:5.5pt;white-space:pre-line;margin-bottom:3mm}
+.tpl-c .c-care-en{font-size:4.95pt;line-height:5.5pt}
+.tpl-c .c-care-fr,.tpl-c .c-addr{font-size:4.6262pt;line-height:5.139pt}
+.tpl-c .c-care-es{font-size:4.95pt;line-height:6pt}
+.tpl-c .symbols{margin:1.5mm 0;display:flex;justify-content:center;gap:.4mm;height:3.5mm}
+.tpl-c .symbols svg{width:3.5mm;height:3.5mm}
+.tpl-c .c-meta{font-size:4.95pt;line-height:5.5pt;margin-top:auto;padding-top:1mm}
+.tpl-c .gap1,.tpl-c .gap2{height:2mm;min-height:2mm;flex:0 0 2mm}
+.tpl-c .c-addr{margin-top:auto;padding-top:0}
+.tpl-c .s3{padding-top:4mm;padding-bottom:3mm}
+.tpl-c .s3>.c-care-es:last-of-type{margin-top:auto;padding-top:1mm}
+.tpl-c .s4{padding-top:6.3mm;padding-bottom:4mm}
+.tpl-c .c-imp{font-size:4.95pt;line-height:8pt}
+@media print{.tpl-c{border-color:#ff00a8}.tpl-c .dash-line{border-color:#ff00a8}}
 
 .btn.small{padding:5px 10px;font-size:12px;margin:6px 6px 0 0}
 .btn-row{display:flex;flex-wrap:wrap}
@@ -295,6 +291,8 @@ body.batch-mode .batch-only{display:inline-block}
       </div>
       <label class="field">PO date (YY/MM)</label><input type="text" id="ys" value="">
       <div class="hint">Batch &amp; tracking code = brand code / factory code / YY / MM</div>
+      <label class="field">追踪码前缀（留空按品牌自动生成）</label>
+      <input type="text" id="prefixOverride" placeholder="例如 S26AE / S27AE">
       <label class="field">Tracking line (blank = auto)</label>
       <input type="text" id="trackOverride" placeholder="">
     </div>
@@ -390,7 +388,7 @@ const TPL = {
   a_adv:{name:'ADV / CC', w:25, l:99, fold:10, rn:'58909'},
   a_sym:{name:'Scene & Heard (symbols)', w:25, l:99, fold:10, rn:'58909'},
   b:{name:'EdgeHill', w:25, l:99, fold:10, rn:'58909'},
-  c:{name:'ANDY & EVAN', w:25, l:100, fold:7, rn:'136762'}
+  c:{name:'ANDY & EVAN', w:28, l:100, fold:8, rn:'136762'}
 };
 
 // ---------- ISO 3758 符号（按 Excel 图例绘制，viewBox 40x40） ----------
@@ -489,7 +487,7 @@ function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
 function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
 function originES(c){return 'Hecho en '+titleCase(c[2])}
 // 追踪码：品牌代码/供应商代码/PO 年/PO 月。
-function trackCode(brand){const prefix=brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
+function trackCode(brand){const prefix=$('prefixOverride').value.trim().toUpperCase()||brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
 
 /* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
    tpl, w, L, fm, comp, care(rows), syms(html), country(row), rn, track, decor,
@@ -513,10 +511,10 @@ function labelHTML(d){
     h+='<div class="label-wrap">';
     // 第一张：EN + FR
     h+='<div class="care-label tpl-c" style="'+box+'">'+tail+'<div class="dash-line"></div>';
-    h+='<div class="sec s1"><div class="logo">ANDY &amp; EVAN<sup>®</sup></div><div class="sp"></div><div class="c-comp">'+esc(d.comp)+'</div><div class="sp"></div>';
+    h+='<div class="sec s1"><div class="logo"><img alt="ANDY &amp; EVAN" src="data:image/png;base64,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"></div><div class="sp"></div><div class="c-comp'+(d.comp.includes('\n')?' multi':'')+'">'+esc(d.comp)+'</div><div class="sp"></div>';
     h+='<div class="c-care-en">'+en+'</div><div class="symbols">'+d.syms+'</div>';
     h+='<div class="c-meta">'+esc(fixAbbr(titleCase(originEN(d.country))))+'<br>RN#'+rn+'<br>'+track+'</div></div><div class="dash-line"></div>';
-    h+='<div class="sec s2"><div class="c-comp">'+esc(fr.text)+'</div><div class="sp"></div><div class="c-care-fr">'+frc+'</div><div class="gap1"></div>';
+    h+='<div class="sec s2"><div class="c-comp'+(fr.text.includes('\n')?' multi':'')+'">'+esc(fr.text)+'</div><div class="sp"></div><div class="c-care-fr">'+frc+'</div><div class="gap1"></div>';
     h+='<div class="c-addr">'+esc(originFR(d.country))+'<br>RN#165550<br>David Peyser Sportswear<br>90 Spence Street<br>Bayshore, NY 11706<br>USA</div><div class="sp"></div></div>';
     h+='<div class="dash-line"></div>'+tail+'</div>';
     // 第二张：ES + 进口商
@@ -537,11 +535,13 @@ function labelHTML(d){
 }
 
 let lastTpl=null;
+function wMm(){return parseFloat($('labelWidth').value)||TPL[curTpl()].w}
 function applyTemplateDefaults(tpl){const t=TPL[tpl];$('labelWidth').value=t.w;$('labelLength').value=t.l;$('foldMm').value=t.fold;$('rn').value=t.rn}
 function render(){
   const tpl=curTpl(), brand=$('brandOverride').value||(tpl==='c'?'S27AE':brandCode($('styleNo').value));
   if(tpl!==lastTpl){applyTemplateDefaults(tpl);lastTpl=tpl}
   $('brandBadge').innerHTML='<span class="brand-badge">'+esc(TPL[tpl].name)+' · '+brand+'</span>';
+  $('prefixOverride').placeholder=brand;
   const sel=formSel(), comp=$('composition').value.replace(/\s+$/,''), qty=$('qty').value.trim();
   const d={tpl, w:parseFloat($('labelWidth').value)||TPL[tpl].w, L:parseFloat($('labelLength').value)||TPL[tpl].l, fm:Math.max(0,parseFloat($('foldMm').value)||0),
     comp, care:careOf(sel), syms:symsOf(sel), country:COUNTRY[+$('country').value]||COUNTRY[0], rn:$('rn').value.trim(),
@@ -552,6 +552,8 @@ function render(){
   $('sheet').innerHTML=labelHTML(d).repeat(parseInt($('copies').value));
   $('sheet').classList.toggle('page-ae',tpl==='c');
   const r=fitAll($('sheet'));
+  if(tpl==='c'){const lengths=[...$('sheet').querySelectorAll('.tpl-c')].slice(0,2).map(el=>(el.offsetHeight*25.4/96).toFixed(1));warns.push('实际标签尺寸：宽 '+wMm()+' mm，长度 '+lengths.join(' / ')+' mm（按内容自动加长；打印100%）。')}
+
   if(r.bad)warns.push('Content does not fit the label: shorten the text or change width/length.');
   else if(r.shrunk)warns.push('Note: font reduced below the template size so the content fits.');
   $('fitWarn').textContent=warns.join('\n');
@@ -572,7 +574,7 @@ function fitLabel(lab){
 }
 function fitAll(root){let bad=0,shrunk=false;root.querySelectorAll('.care-label').forEach(l=>{const r=fitLabel(l);if(!r.ok)bad++;if(r.shrunk)shrunk=true});return {bad,shrunk}}
 
-function resetForm(){$('composition').value='';$('styleNo').value='';$('brandOverride').value='';$('templateOverride').value='auto';$('qty').value='';$('trackOverride').value='';render()}
+function resetForm(){$('composition').value='';$('styleNo').value='';$('brandOverride').value='';$('templateOverride').value='auto';$('qty').value='';$('trackOverride').value='';$('prefixOverride').value='';render()}
 
 // =====================================================================
 // 批量：上传 Excel → 按「品牌 + 性别 + 成分 + 洗护 + 产地」合并 → 结果表 + 标签
@@ -797,7 +799,7 @@ if(location.pathname.startsWith('/care-label-generator'))document.addEventListen
 (function(){
  const control=document.createElement('label');control.style.cssText='display:inline-flex;gap:6px;align-items:center;font-size:13px;margin-right:12px';control.innerHTML='预览倍率 <select id="previewScale" style="width:auto"><option value="1">100%</option><option value="2" selected>200%</option><option value="3">300%</option><option value="4">400%</option></select>';
  document.querySelector('.topbar>div:last-child').prepend(control);
- const note=document.createElement('div');note.className='print-size-note';note.style.cssText='font-size:13px;color:#4e5969;padding:12px 24px;background:#fff';note.textContent='预览已放大，便于核对文字。打印按宽度/长度（毫米）输出；请在打印窗口选择「实际大小 / 100%」，关闭适应页面及页眉页脚。AE默认25×100毫米，两端各7毫米缝口。';document.querySelector('.topbar').after(note);
+ const note=document.createElement('div');note.className='print-size-note';note.style.cssText='font-size:13px;color:#4e5969;padding:12px 24px;background:#fff';note.textContent='预览已放大，便于核对文字。打印按宽度/长度（毫米）输出；请在打印窗口选择「实际大小 / 100%」，关闭适应页面及页眉页脚。AE宽28毫米，基础长度100毫米，内容多时自动加长，两端各8毫米缝口；实际长度见预览提示。';document.querySelector('.topbar').after(note);
  const style=document.createElement('style');style.textContent='.label-sheet{zoom:var(--preview-scale,2)}.preview-area{overflow:auto;justify-content:flex-start}@media print{.label-sheet{zoom:1!important}.print-size-note{display:none!important}}';document.head.appendChild(style);
  document.getElementById('previewScale').addEventListener('change',function(){document.documentElement.style.setProperty('--preview-scale',this.value)});
 })();
