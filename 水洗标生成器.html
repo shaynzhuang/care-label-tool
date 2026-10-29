@@ -78,21 +78,21 @@ textarea{resize:vertical;min-height:50px}
 /* ===== 模板C：ANDY & EVAN 两张 28x100mm ===== */
 .tpl-c{font-family:Arial,"Liberation Sans",Helvetica,sans-serif;border:.25pt solid #ec008c}
 .tpl-c .dash-line{height:0;border-top:.567pt dashed #e73f97;flex-shrink:0}
-.tpl-c .sec{padding:0 .6mm}
+.tpl-c .sec{padding:0 1.5mm}
 .tpl-c .logo{font-family:"Times New Roman",Times,serif;font-size:calc(7.6pt * var(--k));letter-spacing:.2em;line-height:1;margin-top:.5mm;white-space:nowrap}
 .tpl-c .logo sup{font-size:.5em;letter-spacing:0;vertical-align:.9em}
-.tpl-c .c-comp{font-size:calc(6.18pt * var(--k));line-height:1.15;white-space:pre-line}
-.tpl-c .c-comp-es{font-size:calc(4.85pt * var(--k));line-height:1.2;white-space:pre-line}
+.tpl-c .c-comp{font-size:calc(6.3pt * var(--k));line-height:1.15;white-space:pre-line}
+.tpl-c .c-comp-es{font-size:calc(4.95pt * var(--k));line-height:1.2;white-space:pre-line}
 .tpl-c .c-care-en{font-size:calc(4.95pt * var(--k));line-height:1.117;text-transform:none}
-.tpl-c .c-care-fr{font-size:calc(5.06pt * var(--k));line-height:1.01}
-.tpl-c .c-care-es{font-size:calc(5.24pt * var(--k));line-height:1.146}
+.tpl-c .c-care-fr{font-size:calc(4.95pt * var(--k));line-height:1.12}
+.tpl-c .c-care-es{font-size:calc(4.95pt * var(--k));line-height:1.12}
 .tpl-c .c-meta{font-size:calc(4.95pt * var(--k));line-height:1.15}
-.tpl-c .c-addr{font-size:calc(4.79pt * var(--k));line-height:1.065;letter-spacing:.02em}
+.tpl-c .c-addr{font-size:calc(4.95pt * var(--k));line-height:1.12;letter-spacing:normal}
 .tpl-c .c-imp{font-size:calc(4.95pt * var(--k));line-height:1.61}
 .tpl-c .symbols{margin:.8mm 0 .7mm}
 .tpl-c .symbols svg{width:3mm;height:3mm}
-.tpl-c .s1{padding-bottom:3.4mm}
-.tpl-c .s2{padding-top:1.7mm;padding-bottom:.8mm}
+.tpl-c .s1{padding-top:1.5mm;padding-bottom:1.5mm}
+.tpl-c .s2{padding-top:1.5mm;padding-bottom:1.5mm}
 .tpl-c .s3{padding-top:4.1mm;padding-bottom:2.8mm}
 .tpl-c .s4{padding-top:5.1mm}
 .tpl-c .gap1{flex:0 0 1.9mm}
@@ -499,7 +499,7 @@ function fitLabel(lab){
   let ok=true,shrunk=false;
   lab.querySelectorAll('.sec').forEach(el=>{
     let k=1;el.style.setProperty('--k',k);
-    while(overflowing(el)&&k>0.7){k=Math.round((k-0.02)*100)/100;el.style.setProperty('--k',k)}
+    while(!lab.classList.contains('tpl-c')&&overflowing(el)&&k>0.7){k=Math.round((k-0.02)*100)/100;el.style.setProperty('--k',k)}
     if(overflowing(el))ok=false;
     if(k<1)shrunk=true;
   });
