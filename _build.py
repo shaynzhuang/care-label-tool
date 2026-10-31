@@ -804,6 +804,14 @@ if(location.pathname.startsWith('/care-label-generator'))document.addEventListen
  document.getElementById('previewScale').addEventListener('change',function(){document.documentElement.style.setProperty('--preview-scale',this.value)});
 })();
 </script>
+
+<script>
+(function(){
+ const main=document.querySelector('.main'),form=main.querySelector(':scope > .panel'),reference=document.querySelector('.query-panel');
+ const left=document.createElement('div');left.className='editor-column';main.insertBefore(left,form);left.append(form,reference);
+ const style=document.createElement('style');style.textContent='.main{align-items:start}.editor-column{min-width:0}.editor-column>.query-panel{padding:0;margin:16px 0 0;max-width:none}.editor-column .query-grid{grid-template-columns:1fr}.editor-column>.panel{width:100%}@media print{.editor-column{display:none!important}}';document.head.appendChild(style);
+})();
+</script>
 </body>
 </html>'''
 
