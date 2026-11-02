@@ -9,7 +9,7 @@
     AGaramondPro-Italic 9pt，洗涤/款号 CataneoBT-Light 6.14pt，RN/YS ArialMT 6.26pt
   - ANDY & EVAN（APPROVED ae ... YS062651.pdf / HOUSE CC .pdf）：两张 28x100mm，
     折边 8mm，品红边框，ArialMT 4.8-6.2pt
-追踪码：品牌代码/供应商代码/YY/MM；ANDY & EVAN 前缀使用 SS27AE，其余品牌使用对应 S27 代码。
+追踪码：品牌代码/供应商代码/YY/MM；品牌默认按表内 S27 代码，可按用户确认手工覆盖。
 洗护文字、翻译、ISO 符号均来自 S27 HOUSE CARE LABEL RULE Excel（data/ 目录）。
 """
 import json, os
@@ -462,8 +462,9 @@ function curTpl(){const override=$('templateOverride').value;if(override!=='auto
 // 洗护选择 sel = {wash:i, bleach:i, ..., extras:[i]}
 function formSel(){const o={};CATS.forEach(c=>o[c]=+$(c).value);o.extras=[...document.querySelectorAll('#extras input:checked')].map(c=>+c.value);return o}
 function careOf(sel){const r=CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[1]!=='(none)');(sel.extras||[]).forEach(i=>r.push(CARE.extras[i]));return r}
-const enL=x=>x[1].replace(/\.\s*$/,'');
+const enL=x=>x[1];
 // ANDY & EVAN 需要法语/西语；Excel 中缺译文的条目需提示
+function unresolvedSymbols(sel){return CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[0]&&!HOUSE_SYMBOLS[x[0]]).map(x=>x[4])}
 function missingFrEs(care){return care.filter(x=>!x[2]||!x[3]).map(x=>x[1])}
 function symsOf(sel){return CATS.map(c=>CARE[c][sel[c]]).filter(x=>x&&x[0]).map(x=>SYM(x[0])).join('')}
 
@@ -554,7 +555,7 @@ function render(){
     comp, care:careOf(sel), syms:symsOf(sel), country:COUNTRY[+$('country').value]||COUNTRY[0], rn:$('rn').value.trim(),
     track:$('trackOverride').value.trim()||trackCode(brand), decor:$('decor').checked, styleLine:esc($('styleNo').value.trim()),
     qtyText:qty?'数量：'+esc(qty):'', below:tpl==='c'&&qty?esc($('styleNo').value.trim()):''};
-  const warns=[];
+  const warns=[];const unresolved=unresolvedSymbols(sel);if(unresolved.length)warns.push('符号尚未与HOUSE RULE原图核验：'+unresolved.join(', '));
   if(tpl==='c'){const m=translateComp(comp,1).missing;if(m.length)warns.push('No FR/ES translation in the S27 rule for: '+[...new Set(m)].join(', '));const mc=missingFrEs(d.care);if(mc.length)warns.push('S27 rule has no FR/ES text for: '+mc.join(', '))}
   $('sheet').innerHTML=labelHTML(d).repeat(parseInt($('copies').value));
   $('sheet').classList.toggle('page-ae',tpl==='c');
@@ -793,7 +794,7 @@ if(location.pathname.startsWith('/care-label-generator'))document.addEventListen
  const style=document.createElement('style');style.textContent='#manualOutput{display:none}#manualList>div{padding:8px 0;border-bottom:1px solid #ddd}#manualList button{margin-left:8px}@media print{body.manual-print>*{display:none!important}body.manual-print>#manualOutput{display:block!important}#manualOutput .manual-page{break-after:page;break-inside:avoid;display:flex;align-items:flex-start;gap:5mm;flex-wrap:nowrap;padding:0}#manualOutput .manual-page:last-child{break-after:auto}}';document.head.appendChild(style);
  const controls=()=>[...document.querySelectorAll('#single input,#single select,#single textarea')];
  function draw(){const list=document.getElementById('manualList');list.replaceChildren();rows.forEach((r,i)=>{const line=document.createElement('div'),name=document.createElement('span');name.textContent=(i+1)+'. '+r.name+' · '+r.copies+'份'+(editing===i?'（编辑中）':'');line.appendChild(name);for(const [label,fn] of [['编辑',()=>{if(BATCH)exitBatch();editing=i;const fields=controls();const tpl=fields.find(e=>e.id==='templateOverride');if(tpl)tpl.value=r.state.templateOverride.value;const st=fields.find(e=>e.id==='styleNo');if(st)st.value=r.state.styleNo.value;render();fields.forEach(e=>{const v=r.state[e.id];if(v){e.value=v.value;e.checked=v.checked}});document.querySelectorAll('#extras input').forEach((e,j)=>e.checked=!!r.extras[j]);render();draw();}],['删除',()=>{rows.splice(i,1);if(editing===i)editing=-1;else if(editing>i)editing--;draw();}]]){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;line.appendChild(b)}list.appendChild(line)});document.getElementById('manualSave').textContent=editing<0?'添加到列表':'保存修改';}
- document.getElementById('manualSave').onclick=()=>{if(BATCH){alert('请先返回单个标签，再手工添加。');return}const name=$('styleNo').value.trim();if(!name||!$('composition').value.trim()){alert('请填写款号和成分。');return}render();if($('sheet').querySelector('.over')){alert('标签内容超出尺寸，请先调整后再添加。');return}const state={};controls().forEach(e=>{if(e.id)state[e.id]={value:e.value,checked:e.checked}});const row={name,state,extras:[...document.querySelectorAll('#extras input')].map(e=>e.checked),html:$('sheet').innerHTML,copies:$('copies').value,ae:$('sheet').classList.contains('page-ae')};if(editing<0)rows.push(row);else rows[editing]=row;editing=-1;draw();document.getElementById('manualStatus').textContent='已保存，共 '+rows.length+' 款。可修改输入后继续添加。';};
+ document.getElementById('manualSave').onclick=()=>{if(BATCH){alert('请先返回单个标签，再手工添加。');return}if(unresolvedSymbols(formSel()).length||(curTpl()==='c'&&(missingFrEs(careOf(formSel())).length||translateComp($('composition').value,1).missing.length))){alert('存在未核验符号或缺失翻译，请先调整洗护选择/成分后再添加。');return}const name=$('styleNo').value.trim();if(!name||!$('composition').value.trim()){alert('请填写款号和成分。');return}render();if($('sheet').querySelector('.over')){alert('标签内容超出尺寸，请先调整后再添加。');return}const state={};controls().forEach(e=>{if(e.id)state[e.id]={value:e.value,checked:e.checked}});const row={name,state,extras:[...document.querySelectorAll('#extras input')].map(e=>e.checked),html:$('sheet').innerHTML,copies:$('copies').value,ae:$('sheet').classList.contains('page-ae')};if(editing<0)rows.push(row);else rows[editing]=row;editing=-1;draw();document.getElementById('manualStatus').textContent='已保存，共 '+rows.length+' 款。可修改输入后继续添加。';};
  document.getElementById('manualNew').onclick=()=>{editing=-1;resetForm();draw()};
  document.getElementById('manualPrint').onclick=()=>{if(!rows.length){alert('请先添加标签。');return}const labels=[];rows.forEach(r=>{const holder=document.createElement('div');holder.innerHTML=r.html;holder.querySelectorAll('.care-label').forEach(label=>{const wrap=document.createElement('div');wrap.className='label-wrap';wrap.appendChild(label.cloneNode(true));labels.push(wrap)})});output.replaceChildren();for(let i=0;i<labels.length;i+=5){const page=document.createElement('div');page.className='manual-page';labels.slice(i,i+5).forEach(label=>page.appendChild(label));output.appendChild(page)}document.body.classList.add('manual-print');window.print();};
  window.addEventListener('afterprint',()=>document.body.classList.remove('manual-print'));
