@@ -26,3 +26,7 @@
 ## 验证证据
 
 `audit-rule/audit-all-rules.py` 对照原工作簿和提取图像；`verify-all-options.cjs` 遍历全选项；`verify-customer.cjs` 验证客户本款三语和符号资产对应。它们证明数据/代码层面的对应关系，不代替实际打印打样和客户最终批准。
+
+## 后续修正
+阴凉处悬挂晾干几何按GINETEX官方资料核对：方框、单竖线、左上阴干斜线；P15三语仍取客户原表。参考 https://www.ginetex.es/etiquetado_productos_textiles/simbolos_de_cuidado/ 。新增export-shared-pdf.cjs，单独PDF复用网页labelHTML和CSS，经Chrome打印，不再使用旧ReportLab独立排版脚本；旧脚本只作历史。进口商行距从8pt改为6pt，断行保持。4个缺译选项仍待客户补全。
+

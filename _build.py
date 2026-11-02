@@ -195,7 +195,7 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c .s3{padding-top:4mm;padding-bottom:3mm}
 .tpl-c .s3>.c-care-es:last-of-type{margin-top:auto;padding-top:1mm}
 .tpl-c .s4{padding-top:6.3mm;padding-bottom:4mm}
-.tpl-c .c-imp{font-size:4.95pt;line-height:8pt}
+.tpl-c .c-imp{font-size:4.95pt;line-height:6pt}
 @media print{.tpl-c{border-color:#ff00a8}.tpl-c .dash-line{border-color:#ff00a8}}
 
 .btn.small{padding:5px 10px;font-size:12px;margin:6px 6px 0 0}

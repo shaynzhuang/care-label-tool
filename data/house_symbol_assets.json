@@ -278,5 +278,12 @@
     "h": 30,
     "body": 30,
     "source": "FABRIC CARE GUIDE 7.9 / xl/media/image21.GIF"
+  },
+  "lineShade": {
+    "uri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjMxZjIwIiBzdHJva2Utd2lkdGg9IjIuMiI+PHJlY3QgeD0iNSIgeT0iNSIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIi8+PHBhdGggZD0iTTUgMTcgTDE3IDUgTTIwIDEyIFYzMSIvPjwvZz48L3N2Zz4=",
+    "w": 40,
+    "h": 40,
+    "body": 40,
+    "source": "Geometry checked against GINETEX: square, one vertical line, shade diagonal. https://www.ginetex.es/etiquetado_productos_textiles/simbolos_de_cuidado/; EN/FR/ES wording from HOUSE RULE P15."
   }
 }
