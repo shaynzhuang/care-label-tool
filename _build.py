@@ -9,7 +9,7 @@
     AGaramondPro-Italic 9pt，洗涤/款号 CataneoBT-Light 6.14pt，RN/YS ArialMT 6.26pt
   - ANDY & EVAN（APPROVED ae ... YS062651.pdf / HOUSE CC .pdf）：两张 28x100mm，
     折边 8mm，品红边框，ArialMT 4.8-6.2pt
-追踪码：品牌代码/供应商代码/YY/MM；品牌默认按表内 S27 代码，可按用户确认手工覆盖。
+追踪码：品牌代码/供应商代码/YYYY/MM；品牌默认按表内 S27 代码，可按用户确认手工覆盖。
 洗护文字、翻译、ISO 符号均来自 S27 HOUSE CARE LABEL RULE Excel（data/ 目录）。
 """
 import json, os
@@ -292,8 +292,8 @@ body.batch-mode .batch-only{display:inline-block}
         <div><label class="field">RN #</label><input type="text" id="rn" value="58909"></div>
         <div><label class="field">Factory code</label><input type="text" id="fty" value="YS14"></div>
       </div>
-      <label class="field">PO date (YY/MM)</label><input type="text" id="ys" value="">
-      <div class="hint">Batch &amp; tracking code = brand code / factory code / YY / MM</div>
+      <label class="field">PO date (YYYY/MM)</label><input type="text" id="ys" value="">
+      <div class="hint">Batch &amp; tracking code = brand code / factory code / YYYY / MM</div>
       <label class="field">追踪码前缀（留空按品牌自动生成）</label>
       <input type="text" id="prefixOverride" placeholder="例如 S26AE / S27AE">
       <label class="field">Tracking line (blank = auto)</label>
@@ -496,7 +496,7 @@ function originEN(c){return 'Made in '+fixAbbr(titleCase(c[0]))}
 function originFR(c){const g=c[1],m=g.match(/^(\S+)\s+(.*)$/);return 'Fabriqué '+(m?m[1].toLowerCase()+' '+titleCase(m[2]):titleCase(g))}
 function originES(c){return 'Hecho en '+titleCase(c[2])}
 // 追踪码：品牌代码/供应商代码/PO 年/PO 月。
-function trackCode(brand){const prefix=$('prefixOverride').value.trim().toUpperCase()||brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim().replace(/^(20\d{2})\//,(_,year)=>year.slice(-2)+'/')}
+function trackCode(brand){const prefix=$('prefixOverride').value.trim().toUpperCase()||brand;return prefix+'/'+$('fty').value.trim()+'/'+$('ys').value.trim()}
 
 /* 生成一个标签（ANDY & EVAN 为两张）。d 字段：
    tpl, w, L, fm, comp, care(rows), syms(html), country(row), rn, track, decor,
@@ -738,7 +738,7 @@ function renderPresetInfo(){const p=loadPresets(),b=$('presetBrand').value;$('pr
 
 // ---------- 初始化 ----------
 (function init(){
-  $('ys').value='';$('ys').placeholder='PO YY/MM';
+  $('ys').value='';$('ys').placeholder='PO YYYY/MM';
   $('country').innerHTML=COUNTRY.map((c,i)=>'<option value="'+i+'"'+(c[0]==='CHINA'?' selected':'')+'>'+esc(fixAbbr(titleCase(c[0])))+'</option>').join('');
   $('extras').innerHTML=CARE.extras.map((x,i)=>'<label class="check"><input type="checkbox" value="'+i+'"> '+esc(x[1])+'</label>').join('');
   // 参考区
