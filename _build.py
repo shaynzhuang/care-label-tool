@@ -409,7 +409,7 @@ const CIR='<circle cx="20" cy="20" r="12.5"/>';
 function pro(letter,nbar){const cy=[20,17.5,15.5][nbar],r=[12.5,11.5,10][nbar];return '<circle cx="20" cy="'+cy+'" r="'+r+'"/>'+(letter?'<text x="20" y="'+(cy+5.8)+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="'+(nbar==2?14:16)+'" fill="#231f20" stroke="none">'+letter+'</text>':'')+bars(nbar,cy+r+3.5,9,31)}
 const HOUSE_SYMBOLS = ''' + json.dumps(HOUSE_SYMBOLS,ensure_ascii=False) + r''';
 function SYM(k){
- if(HOUSE_SYMBOLS[k]){const a=HOUSE_SYMBOLS[k],h=a.h/a.body*28,w=a.w/a.body*28;return '<svg style="width:'+(a.w/a.body*3.2)+'mm;height:4.8mm" viewBox="0 0 '+w+' 42" xmlns="http://www.w3.org/2000/svg"><image href="'+a.uri+'" x="0" y="2" width="'+w+'" height="'+h+'"/></svg>'}
+ if(HOUSE_SYMBOLS[k]){const a=HOUSE_SYMBOLS[k];return '<svg style="width:4mm;height:4mm" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><image href="'+a.uri+'" x="3" y="3" width="34" height="34" preserveAspectRatio="xMidYMid meet"/></svg>'}
 
   if(!k)return '';
   const m=k.match(/^w(\d+)(vm|m|n)$/);
