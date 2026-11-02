@@ -18,6 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXCEL = json.load(open(os.path.join(HERE, 'data', 'excel_lists.json'), encoding='utf-8'))
 
 # ---------------- 洗护选项：文字逐字取自 S27 HOUSE CARE LABEL RULE（data/excel_care.json，键为单元格） ----------------
+HOUSE_SYMBOLS = json.load(open(os.path.join(HERE, 'data', 'house_symbol_assets.json'), encoding='utf-8'))
 CELL = json.load(open(os.path.join(HERE, 'data', 'excel_care.json'), encoding='utf-8'))
 def X(key, cell, label=None, en=None):
     """(符号key, EN, FR, ES, 下拉框显示名)；label 只用于下拉框区分同名选项，不印在标签上"""
@@ -186,7 +187,7 @@ textarea{resize:vertical;min-height:50px}
 .tpl-c .c-care-en{font-size:4.95pt;line-height:5.5pt}
 .tpl-c .c-care-fr,.tpl-c .c-addr{font-size:4.6262pt;line-height:5.139pt}
 .tpl-c .c-care-es{font-size:4.95pt;line-height:6pt}
-.tpl-c .symbols{margin:1.5mm 0;display:flex;justify-content:center;gap:.4mm;height:3.5mm}
+.tpl-c .symbols{margin:1.5mm 0 2.5mm;display:flex;justify-content:center;gap:.4mm;height:4.8mm}
 .tpl-c .symbols svg{width:3.5mm;height:3.5mm}
 .tpl-c .c-meta{font-size:4.95pt;line-height:5.5pt;margin-top:auto;padding-top:1mm}
 .tpl-c .gap1,.tpl-c .gap2{height:2mm;min-height:2mm;flex:0 0 2mm}
@@ -406,7 +407,10 @@ const DRUM='<circle cx="20" cy="20" r="11.5"/>';
 const IRONP='<path d="M3 32 H37 L34.6 9 H12.5 L11 18.5 M3 32 C3.8 24 6.5 18.5 11 18.5 H35.6"/>';
 const CIR='<circle cx="20" cy="20" r="12.5"/>';
 function pro(letter,nbar){const cy=[20,17.5,15.5][nbar],r=[12.5,11.5,10][nbar];return '<circle cx="20" cy="'+cy+'" r="'+r+'"/>'+(letter?'<text x="20" y="'+(cy+5.8)+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="'+(nbar==2?14:16)+'" fill="#231f20" stroke="none">'+letter+'</text>':'')+bars(nbar,cy+r+3.5,9,31)}
+const HOUSE_SYMBOLS = ''' + json.dumps(HOUSE_SYMBOLS,ensure_ascii=False) + r''';
 function SYM(k){
+ if(HOUSE_SYMBOLS[k]){const a=HOUSE_SYMBOLS[k],h=a.h/a.body*28,w=a.w/a.body*28;return '<svg style="width:'+(a.w/a.body*3.2)+'mm;height:4.8mm" viewBox="0 0 '+w+' 42" xmlns="http://www.w3.org/2000/svg"><image href="'+a.uri+'" x="0" y="2" width="'+w+'" height="'+h+'"/></svg>'}
+
   if(!k)return '';
   const m=k.match(/^w(\d+)(vm|m|n)$/);
   if(m){const t=+m[1],nb={vm:2,m:1,n:0}[m[2]],nd={30:1,40:2,50:3,60:4}[t]||0;return svg(TUB+tubTxt(t>=70?String(t):t+'C')+dots(nd,26.3,20,4.4)+bars(nb,34.3,7.5,32.5))}
