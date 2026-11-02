@@ -18,6 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXCEL = json.load(open(os.path.join(HERE, 'data', 'excel_lists.json'), encoding='utf-8'))
 
 # ---------------- 洗护选项：文字逐字取自 S27 HOUSE CARE LABEL RULE（data/excel_care.json，键为单元格） ----------------
+PRINT_VECTORS = json.load(open(os.path.join(HERE, 'data', 'print_symbol_vectors.json'), encoding='utf-8'))
 HOUSE_SYMBOLS = json.load(open(os.path.join(HERE, 'data', 'house_symbol_assets.json'), encoding='utf-8'))
 CELL = json.load(open(os.path.join(HERE, 'data', 'excel_care.json'), encoding='utf-8'))
 def X(key, cell, label=None, en=None):
@@ -408,8 +409,10 @@ const IRONP='<path d="M3 32 H37 L34.6 9 H12.5 L11 18.5 M3 32 C3.8 24 6.5 18.5 11
 const CIR='<circle cx="20" cy="20" r="12.5"/>';
 function pro(letter,nbar){const cy=[20,17.5,15.5][nbar],r=[12.5,11.5,10][nbar];return '<circle cx="20" cy="'+cy+'" r="'+r+'"/>'+(letter?'<text x="20" y="'+(cy+5.8)+'" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="'+(nbar==2?14:16)+'" fill="#231f20" stroke="none">'+letter+'</text>':'')+bars(nbar,cy+r+3.5,9,31)}
 const HOUSE_SYMBOLS = ''' + json.dumps(HOUSE_SYMBOLS,ensure_ascii=False) + r''';
+const PRINT_VECTORS = ''' + json.dumps(PRINT_VECTORS,ensure_ascii=False) + r''';
 function SYM(k){
- if(HOUSE_SYMBOLS[k]){const a=HOUSE_SYMBOLS[k];return '<svg style="width:4mm;height:4mm" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><image href="'+a.uri+'" x="3" y="3" width="34" height="34" preserveAspectRatio="xMidYMid meet"/></svg>'}
+ if(PRINT_VECTORS[k]){return PRINT_VECTORS[k].svg.replace('<svg ', '<svg style="width:4mm;height:4mm" ').replace('<g ', '<g transform="translate(3 3) scale(.85)" ')}
+
 
   if(!k)return '';
   const m=k.match(/^w(\d+)(vm|m|n)$/);
